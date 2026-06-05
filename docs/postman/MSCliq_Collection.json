@@ -1,0 +1,3877 @@
+{
+  "info": {
+    "_postman_id": "mscliq-backend-api",
+    "name": "MSCliq Backend API",
+    "description": "API Collection for MSCliq Backend - Auth and User management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Home",
+      "item": [
+        {
+          "name": "Get Home Storefront",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}home",
+              "host": [
+                "{{server}}home"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Send OTP (Login)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"phone\": \"1234567890\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}auth/login/send-otp",
+              "host": [
+                "{{server}}auth"
+              ],
+              "path": [
+                "login",
+                "send-otp"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify OTP & Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"phone\": \"1234567890\",\n    \"otp\": \"123456\",\n    \"deviceInfo\": \"Postman Desktop\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}auth/login/verify",
+              "host": [
+                "{{server}}auth"
+              ],
+              "path": [
+                "login",
+                "verify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send OTP (Mobile Change)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"newPhone\": \"1234567890\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}auth/mobile-change/send-otp",
+              "host": [
+                "{{server}}auth"
+              ],
+              "path": [
+                "mobile-change",
+                "send-otp"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify OTP (Mobile Change)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"newPhone\": \"1234567890\",\n    \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}auth/mobile-change/verify",
+              "host": [
+                "{{server}}auth"
+              ],
+              "path": [
+                "mobile-change",
+                "verify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login with Password (Staff/Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"phone\": \"9876543210\",\n    \"password\": \"password123\",\n    \"deviceInfo\": \"Postman Desktop\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}auth/login-password",
+              "host": [
+                "{{server}}auth"
+              ],
+              "path": [
+                "login-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-client-type",
+                "value": "mobile",
+                "description": "Required if testing mobile flow (body token)",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refreshToken\": \"your_refresh_token_here\",\n    \"tokenType\": \"admin\",\n    \"deviceInfo\": \"Postman Desktop\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}auth/refresh-token",
+              "host": [
+                "{{server}}auth"
+              ],
+              "path": [
+                "refresh-token"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refreshToken\": \"your_refresh_token_here\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}auth/logout",
+              "host": [
+                "{{server}}auth"
+              ],
+              "path": [
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Active Sessions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}auth/sessions",
+              "host": [
+                "{{server}}auth"
+              ],
+              "path": [
+                "sessions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout All Devices",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{server}}auth/logout-all",
+              "host": [
+                "{{server}}auth"
+              ],
+              "path": [
+                "logout-all"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Revoke Single Session",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{server}}auth/sessions/:sessionId",
+              "host": [
+                "{{server}}auth"
+              ],
+              "path": [
+                "sessions",
+                ":sessionId"
+              ],
+              "variable": [
+                {
+                  "key": "sessionId",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Logout Target User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{server}}auth/:id/logout-all",
+              "host": [
+                "{{server}}auth"
+              ],
+              "path": [
+                ":id",
+                "logout-all"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Me",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}users/me",
+              "host": [
+                "{{server}}users"
+              ],
+              "path": [
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Me",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Doe Updated\",\n    \"email\": \"john.doe@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}users/me",
+              "host": [
+                "{{server}}users"
+              ],
+              "path": [
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}users?page=1&limit=10&role=customer&isActive=true&search=John",
+              "host": [
+                "{{server}}users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "role",
+                  "value": "customer"
+                },
+                {
+                  "key": "isActive",
+                  "value": "true"
+                },
+                {
+                  "key": "search",
+                  "value": "John"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Customers",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}users/customers?page=1&limit=10&search=John&location=Mumbai&fromDate=2023-01-01&toDate=2023-12-31&sortBy=newest",
+              "host": [
+                "{{server}}users"
+              ],
+              "path": [
+                "customers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "John"
+                },
+                {
+                  "key": "location",
+                  "value": "Mumbai"
+                },
+                {
+                  "key": "fromDate",
+                  "value": "2023-01-01"
+                },
+                {
+                  "key": "toDate",
+                  "value": "2023-12-31"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "newest"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Staff/Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"phone\": \"9876543211\",\n    \"name\": \"New Staff Member\",\n    \"email\": \"staff@example.com\",\n    \"role\": \"staff\",\n    \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}users/staff",
+              "host": [
+                "{{server}}users"
+              ],
+              "path": [
+                "staff"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}users/:id",
+              "host": [
+                "{{server}}users"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Name\",\n    \"role\": \"admin\",\n    \"isActive\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}users/:id",
+              "host": [
+                "{{server}}users"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Toggle User Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{server}}users/:id/status",
+              "host": [
+                "{{server}}users"
+              ],
+              "path": [
+                ":id",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete User (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{server}}users/:id",
+              "host": [
+                "{{server}}users"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Warehouses",
+      "item": [
+        {
+          "name": "Get All Warehouses",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}warehouses?isActive=true",
+              "host": [
+                "{{server}}warehouses"
+              ],
+              "query": [
+                {
+                  "key": "isActive",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Warehouse",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"pickupLocation\": \"PRIMARY_WH\",\n    \"name\": \"Main Hub\",\n    \"email\": \"warehouse@example.com\",\n    \"phone\": \"9876543210\",\n    \"address\": \"123 Warehouse St\",\n    \"address2\": \"Phase 2\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"pinCode\": \"400001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}warehouses",
+              "host": [
+                "{{server}}warehouses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Warehouse By ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}warehouses/:id",
+              "host": [
+                "{{server}}warehouses"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Warehouse",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Main Hub Updated\",\n    \"phone\": \"9999999999\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}warehouses/:id",
+              "host": [
+                "{{server}}warehouses"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Linked Products",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}warehouses/:id/products",
+              "host": [
+                "{{server}}warehouses"
+              ],
+              "path": [
+                ":id",
+                "products"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sync with Shiprocket",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{server}}warehouses/sync-with-shiprocket",
+              "host": [
+                "{{server}}warehouses"
+              ],
+              "path": [
+                "sync-with-shiprocket"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Brands",
+      "item": [
+        {
+          "name": "Get All Brands",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}brands?search=Apple",
+              "host": [
+                "{{server}}brands"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Apple"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Brand By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}brands/:id",
+              "host": [
+                "{{server}}brands"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Brand",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Apple",
+                  "type": "text"
+                },
+                {
+                  "key": "logo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{server}}brands",
+              "host": [
+                "{{server}}brands"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Brand",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Apple Inc",
+                  "type": "text"
+                },
+                {
+                  "key": "logo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{server}}brands/:id",
+              "host": [
+                "{{server}}brands"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Brand (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{server}}brands/:id",
+              "host": [
+                "{{server}}brands"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Get Category Tree",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}categories?tree=true",
+              "host": [
+                "{{server}}categories"
+              ],
+              "query": [
+                {
+                  "key": "tree",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Eligible Parent Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}categories/eligible-parents?search=Elec&categoryId=60d5ecb8b392d40015f8e6a1",
+              "host": [
+                "{{server}}categories"
+              ],
+              "path": [
+                "eligible-parents"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Elec"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "60d5ecb8b392d40015f8e6a1",
+                  "description": "Optional: category being edited to exclude itself and descendants"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}categories?search=Electronics&parentCategoryId=null",
+              "host": [
+                "{{server}}categories"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Electronics"
+                },
+                {
+                  "key": "parentCategoryId",
+                  "value": "null"
+                }
+              ]
+            },
+            "description": "Returns a flat list of categories. Each includes `effectiveTax` — the resolved tax after inheritance rules. Use this in the frontend admin panel to show the tax slab for each category."
+          }
+        },
+        {
+          "name": "Get Category By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}categories/:id",
+              "host": [
+                "{{server}}categories"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            },
+            "description": "Returns a single category. Includes `effectiveTax` — the resolved tax after inheritance rules (nearest ancestor wins). Use this in the frontend."
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Smartphones",
+                  "type": "text"
+                },
+                {
+                  "key": "slug",
+                  "value": "smartphones",
+                  "type": "text"
+                },
+                {
+                  "key": "parentCategoryId",
+                  "value": "60d5ecb8b392d40015f8e6a1",
+                  "type": "text",
+                  "disabled": true,
+                  "description": "Optional: set to inherit tax from parent category"
+                },
+                {
+                  "key": "taxes",
+                  "value": "[{\"name\": \"CGST\", \"slab\": 9}, {\"name\": \"SGST\", \"slab\": 9}]",
+                  "type": "text",
+                  "description": "Optional: tax slabs for this category. If omitted or empty, inherits from nearest parent ancestor. Example: CGST 9% + SGST 9% = 18% total"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{server}}categories",
+              "host": [
+                "{{server}}categories"
+              ]
+            },
+            "description": "**Tax Inheritance:** If `taxes` is omitted or empty, this category inherits tax from its nearest ancestor category. Each `slab` is a percentage number (e.g. 18 = 18%). Duplicate tax names are not allowed.\n\n**Response includes `effectiveTax`:** The resolved tax after inheritance rules — use this in the frontend, not `taxes` directly."
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Smartphones Updated",
+                  "type": "text"
+                },
+                {
+                  "key": "slug",
+                  "value": "smartphones-updated",
+                  "type": "text"
+                },
+                {
+                  "key": "taxes",
+                  "value": "[{\"name\": \"CGST\", \"slab\": 9}, {\"name\": \"SGST\", \"slab\": 9}]",
+                  "type": "text",
+                  "description": "Optional: override category's own tax slabs. Set to [] to make this category inherit from parent instead."
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{server}}categories/:id",
+              "host": [
+                "{{server}}categories"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            },
+            "description": "**Tax Inheritance:** If `taxes` is omitted, keeps existing. If set to `[]` (empty array), clears own tax and reverts to inheriting from nearest ancestor. If set with values, uses those as this category's own tax.\n\n**Response includes `effectiveTax`:** The resolved tax after inheritance rules."
+          }
+        },
+        {
+          "name": "Delete Category (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{server}}categories/:id",
+              "host": [
+                "{{server}}categories"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}products?page=1&limit=10&search=Laptop&isPublished=true",
+              "host": [
+                "{{server}}products"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "Laptop"
+                },
+                {
+                  "key": "isPublished",
+                  "value": "true",
+                  "description": "Admins can see drafts by setting to false"
+                }
+              ]
+            },
+            "description": "**Tax field `effectiveTax`:** Each product in the response includes an `effectiveTax` field — the resolved tax after inheritance. If the product has its own `taxes`, those are used. Otherwise, the tax is inherited from the product's category (its `effectiveTax`). Use `effectiveTax` in the frontend, not `taxes` directly."
+          }
+        },
+        {
+          "name": "Get Products By Category Slug (With Filters)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}products/category/:slug?page=1&limit=10&sortBy=newest&subcategoryId=&attributes=",
+              "host": [
+                "{{server}}products"
+              ],
+              "path": [
+                "category",
+                ":slug"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "newest",
+                  "description": "price-asc, price-desc, newest, oldest, discount"
+                },
+                {
+                  "key": "brandId",
+                  "value": "",
+                  "description": "Filter by brand ID",
+                  "disabled": true
+                },
+                {
+                  "key": "minPrice",
+                  "value": "",
+                  "description": "Minimum price filter",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "",
+                  "description": "Maximum price filter",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search in product title",
+                  "disabled": true
+                },
+                {
+                  "key": "subcategoryId",
+                  "value": "",
+                  "description": "Filter by specific subcategory (must be descendant of parent)"
+                },
+                {
+                  "key": "attributes",
+                  "value": "",
+                  "description": "JSON string: {\"Color\":[\"Black\",\"Red\"],\"RAM\":[\"16GB\"]}"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "laptops"
+                }
+              ]
+            },
+            "description": "**Returns products with full filter support.**\n\n### Filter Parameters:\n- `brandId`: Filter by brand\n- `minPrice` / `maxPrice`: Price range\n- `search`: Title search\n- `subcategoryId`: Filter to specific subcategory\n- `attributes`: JSON string with variant attribute filters\n\n### Attribute Filter Logic:\n- OR within same key: `{\"Color\":[\"Black\",\"Red\"]}` → Black OR Red\n- AND across keys: `{\"Color\":[\"Black\"],\"RAM\":[\"16GB\"]}` → Black AND 16GB\n\n### Example:\n```\n/products/category/laptops?subcategoryId=xxx&attributes={\"Color\":[\"Black\"]}&minPrice=50000\n```"
+          }
+        },
+        {
+          "name": "Get Product By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}products/:id",
+              "host": [
+                "{{server}}products"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            },
+            "description": "Returns full product detail. Includes `effectiveTax` — the resolved tax after inheritance rules. The response also has `isTaxInclude` (whether price shown includes tax) and the raw `taxes` array (product's own tax, if set)."
+          }
+        },
+        {
+          "name": "Get Category Filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}products/category/:slug/filters",
+              "host": [
+                "{{server}}products"
+              ],
+              "path": [
+                "category",
+                ":slug",
+                "filters"
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "electronics"
+                }
+              ]
+            },
+            "description": "**Returns dynamic filter options for a category page.**\n\n### Response includes:\n- `category`: current category info\n- `filters.brands`: brands with product counts in this category\n- `filters.priceRange`: min/max prices from variants\n- `filters.attributes`: dynamic attribute filters (RAM, Color, etc.) based on category's `filterConfig`\n- `subcategories`: child categories with product counts (max 2 levels deep)\n- `cachedAt` / `expiresAt`: cache timestamps (15 min TTL)\n\n### Cache:\n- In-memory cache with 15min TTL\n- FIFO eviction when cache exceeds 50 entries"
+          }
+        },
+        {
+          "name": "Get Search Filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}products/search/filters",
+              "host": [
+                "{{server}}products"
+              ],
+              "path": [
+                "search",
+                "filters"
+              ]
+            },
+            "description": "**Returns universal filter options for search page.**\n\n### Response includes:\n- `filters.brands`: all brands with product counts\n- `filters.priceRange`: global min/max prices\n- `cachedAt`: cache timestamp\n\n### Note:\n- No attribute filters (RAM, Color) - those are category-specific\n- Only brands + price range make sense for cross-category search"
+          }
+        },
+        {
+          "name": "Get Similar Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}products/:id/similar",
+              "host": [
+                "{{server}}products"
+              ],
+              "path": [
+                ":id",
+                "similar"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "High Performance Gaming Laptop",
+                  "type": "text"
+                },
+                {
+                  "key": "desc",
+                  "value": "This is a detailed description of the gaming laptop with great specs.",
+                  "type": "text"
+                },
+                {
+                  "key": "specs",
+                  "value": "[{\"key\": \"RAM\", \"value\": \"16GB\"}, {\"key\": \"Storage\", \"value\": \"512GB SSD\"}]",
+                  "type": "text"
+                },
+                {
+                  "key": "brandId",
+                  "value": "60d5ecb8b392d40015f8e6a1",
+                  "type": "text"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "60d5ecb8b392d40015f8e6a1",
+                  "type": "text"
+                },
+                {
+                  "key": "pickupWareHouseId",
+                  "value": "60d5ecb8b392d40015f8e6a1",
+                  "type": "text"
+                },
+                {
+                  "key": "returnPolicyType",
+                  "value": "REPLACE",
+                  "type": "text"
+                },
+                {
+                  "key": "returnWindowDays",
+                  "value": "7",
+                  "type": "text"
+                },
+                {
+                  "key": "isPublished",
+                  "value": "false",
+                  "type": "text",
+                  "description": "Default is false (draft)"
+                },
+                {
+                  "key": "isTaxInclude",
+                  "value": "true",
+                  "type": "text",
+                  "description": "Whether product price includes tax"
+                },
+                {
+                  "key": "taxes",
+                  "value": "[{\"name\": \"CGST\", \"slab\": 9}, {\"name\": \"SGST\", \"slab\": 9}]",
+                  "type": "text",
+                  "description": "Optional: product's own tax slabs. If omitted or [], the product inherits tax from its category (via effectiveTax). Use own tax only to override the category tax for this product specifically."
+                },
+                {
+                  "key": "coverImage",
+                  "type": "file",
+                  "src": [],
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{server}}products",
+              "host": [
+                "{{server}}products"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Updated Laptop Title",
+                  "type": "text"
+                },
+                {
+                  "key": "isActive",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "isPublished",
+                  "value": "true",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{server}}products/:id",
+              "host": [
+                "{{server}}products"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Publish Product",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{server}}products/:id/publish",
+              "host": [
+                "{{server}}products"
+              ],
+              "path": [
+                ":id",
+                "publish"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Product (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{server}}products/:id",
+              "host": [
+                "{{server}}products"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Variants",
+      "item": [
+        {
+          "name": "Search Variants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}variants/search?search=Laptop&page=1&limit=10",
+              "host": [
+                "{{server}}variants"
+              ],
+              "path": [
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Laptop"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Variant By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}variants/:id",
+              "host": [
+                "{{server}}variants"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Variant By Slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}variants/slug/:slug",
+              "host": [
+                "{{server}}variants"
+              ],
+              "path": [
+                "slug",
+                ":slug"
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "high-performance-gaming-laptop-silver-i7"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Variants By Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}products/:productId/variants",
+              "host": [
+                "{{server}}products"
+              ],
+              "path": [
+                ":productId",
+                "variants"
+              ],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Variant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "productId",
+                  "value": "60d5ecb8b392d40015f8e6a1",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Core i7 / 16GB / 512GB",
+                  "type": "text"
+                },
+                {
+                  "key": "sku",
+                  "value": "LT-I7-16-512",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "75000",
+                  "type": "text"
+                },
+                {
+                  "key": "mrp",
+                  "value": "85000",
+                  "type": "text"
+                },
+                {
+                  "key": "stocks",
+                  "value": "50",
+                  "type": "text"
+                },
+                {
+                  "key": "attributes",
+                  "value": "{\"color\": \"Silver\", \"processor\": \"i7\"}",
+                  "type": "text"
+                },
+                {
+                  "key": "discount",
+                  "value": "{\"type\": \"percentage\", \"value\": 10}",
+                  "type": "text"
+                },
+                {
+                  "key": "coverImage",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{server}}variants",
+              "host": [
+                "{{server}}variants"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Variant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "price",
+                  "value": "72000",
+                  "type": "text"
+                },
+                {
+                  "key": "isDefault",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "discount",
+                  "value": "{\"type\": \"flat\", \"value\": 1000}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{server}}variants/:id",
+              "host": [
+                "{{server}}variants"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Toggle Variant Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{server}}variants/:id/toggle",
+              "host": [
+                "{{server}}variants"
+              ],
+              "path": [
+                ":id",
+                "toggle"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Variant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{server}}variants/:id",
+              "host": [
+                "{{server}}variants"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}cart",
+              "host": [
+                "{{server}}cart"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sync Cart",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"items\": [\n        {\n            \"variantId\": \"60d5ecb8b392d40015f8e6a1\",\n            \"quantity\": 2\n        }\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}cart/sync",
+              "host": [
+                "{{server}}cart"
+              ],
+              "path": [
+                "sync"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{server}}cart",
+              "host": [
+                "{{server}}cart"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Coupons",
+      "item": [
+        {
+          "name": "Get Available Coupons (Customer)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}coupons/available?maxOrderValue=1000",
+              "host": [
+                "{{server}}coupons"
+              ],
+              "path": [
+                "available"
+              ],
+              "query": [
+                {
+                  "key": "maxOrderValue",
+                  "value": "1000",
+                  "description": "Optional: filter coupons applicable to this cart value"
+                }
+              ]
+            },
+            "description": "**Returns coupons available for customers to use.**\n\nOnly returns coupons that are:\n- Active (isActive: true)\n- Not expired (expiresAt > now)\n- Within the user's cart value range (if maxOrderValue provided)\n\nReturns safe fields only: code, type, value, minOrderValue, maxDiscount, expiresAt"
+          }
+        },
+        {
+          "name": "Create Coupon (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"WELCOME10\",\n    \"type\": \"percentage\",\n    \"value\": 10,\n    \"minOrderValue\": 500,\n    \"maxDiscount\": 200,\n    \"expiresAt\": \"2026-12-31\",\n    \"userLimit\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}coupons",
+              "host": [
+                "{{server}}coupons"
+              ]
+            },
+            "description": "**Create a new coupon.**\n\n- `type`: \"percentage\" (e.g., 10% off) or \"flat\" (e.g., ₹10 off)\n- `maxDiscount`: Caps the discount amount for percentage coupons (0 = no cap)\n- `minOrderValue`: Minimum cart subtotal required to apply this coupon\n- `userLimit`: How many times a single user can use this coupon (0 = unlimited)"
+          }
+        },
+        {
+          "name": "List Coupons (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}coupons?page=1&limit=10",
+              "host": [
+                "{{server}}coupons"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Coupon By ID (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}coupons/:id",
+              "host": [
+                "{{server}}coupons"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Validate Coupon (Pre-Order)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}coupons/validate?code=WELCOME10&subtotal=1000",
+              "host": [
+                "{{server}}coupons"
+              ],
+              "path": [
+                "validate"
+              ],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "WELCOME10"
+                },
+                {
+                  "key": "subtotal",
+                  "value": "1000"
+                }
+              ]
+            },
+            "description": "**Validate a coupon before placing an order.**\n\nReturns whether the coupon is valid, and if so, the calculated discount amount."
+          }
+        },
+        {
+          "name": "Update Coupon (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"isActive\": false,\n    \"maxDiscount\": 150\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}coupons/:id",
+              "host": [
+                "{{server}}coupons"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Coupon (Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{server}}coupons/:id",
+              "host": [
+                "{{server}}coupons"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "item": [
+        {
+          "name": "Get Wishlist",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}wishlist",
+              "host": [
+                "{{server}}wishlist"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Toggle Wishlist Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{server}}wishlist/toggle/:variantId",
+              "host": [
+                "{{server}}wishlist"
+              ],
+              "path": [
+                "toggle",
+                ":variantId"
+              ],
+              "variable": [
+                {
+                  "key": "variantId",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Customer: Create Order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"items\": [\n        {\n            \"variantId\": \"60d5ecb8b392d40015f8e6a1\",\n            \"quantity\": 1\n        }\n    ],\n    \"shippingAddress\": {\n        \"fullName\": \"John Doe\",\n        \"phone\": \"9876543210\",\n        \"addressLine1\": \"123, Luxury Apartments\",\n        \"addressLine2\": \"Road No. 4\",\n        \"city\": \"Mumbai\",\n        \"state\": \"Maharashtra\",\n        \"postalCode\": \"400001\",\n        \"country\": \"India\"\n    },\n    \"appliedCoupon\": \"WELCOME10\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}orders",
+              "host": [
+                "{{server}}orders"
+              ]
+            },
+            "description": "**Create a new order with full pricing calculation.**\n\n### Pricing Flow:\n1. Base price taken from variant.price\n2. Coupon discount applied (percentage = same % per item, flat = proportional weight)\n3. Tax calculated on effective (post-discount) subtotal using product's effectiveTax\n4. Order total = subtotal - couponDiscount + itemTax + shippingCost\n\n### Order Item Fields:\n- `discountApportioned`: portion of coupon discount for this item\n- `effectivePrice`: price after discount per unit\n- `effectiveSubtotal`: subtotal after discount\n- `taxDetails`: array of `{name, slab, amount}` per tax slab\n- `totalTax`: sum of all tax amounts\n- `itemTotal`: final line total\n\n### Order-level Fields:\n- `couponDiscount`: total discount (replaces `discount`)\n- `itemTax`: sum of all item-level taxes (replaces `tax`)\n- `paymentExpiresAt`: set to 10 minutes from creation (TTL marker for polling cleanup)\n\n### Flow:\n1. Order created with `pending_payment` status\n2. Stock is reserved (decremented) immediately\n3. Cart is NOT cleared here — deferred to payment success\n4. If payment succeeds: cart cleared, status → `processing`\n5. If payment fails: stock restored, status → `payment_failed`\n6. If abandoned (10 min): polling service restores stock, status → `payment_expired`"
+          }
+        },
+        {
+          "name": "Customer: Get My Orders",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}orders/me?page=1&limit=10&status=processing",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                "me"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "processing"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Customer: Get Order By ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}orders/me/:id",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                "me",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Customer: Cancel Order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"reason\": \"Changed my mind about the color.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}orders/me/:id/cancel",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                "me",
+                ":id",
+                "cancel"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Cancel Order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"reason\": \"Item out of stock at warehouse.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}orders/:id/cancel",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                ":id",
+                "cancel"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            },
+            "description": "**Cancels an order and restores inventory (no inline refund).**\n\nThis endpoint changes the order status to `cancelled` and restocks inventory.\n\n### Side Effects:\n1. **Restocks inventory** — all item quantities returned to variant stock\n2. **Records history** — `Cancelled by Admin` entry added to `statusHistory`\n\n### NOT included:\n- **No automatic refund** — for refund, use the dedicated `/refund` endpoint separately\n\n### Allowed From:\n- `pending_payment` or `processing` status only\n\n### Workflow:\n1. Cancel first via `PATCH /:id/cancel`\n2. If payment was made, issue refund via `PATCH /:id/refund`"
+        },
+        {
+          "name": "Admin: Manual Refund",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"reason\": \"Manual refund - customer request approved.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}orders/:id/refund",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                ":id",
+                "refund"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            },
+            "description": "**Issues or retries a Razorpay refund for an order.**\n\n### When to Use:\n- After cancelling an order (if payment was already captured)\n- To retry a failed refund\n\n### Behavior:\n1. Checks if transaction exists and is eligible for refund\n2. Triggers Razorpay refund via API\n3. Updates transaction with `refunded` status + `refundInitiatedAt`\n4. Records `Refund Issued` in order `statusHistory`\n\n### Refund Failure Handling:\nIf refund fails:\n- Transaction status → `refund_failed`\n- `refundFailureReason` populated\n- Order history → `Refund Failed — Manual Review Required`\n- Admin can retry this endpoint\n\n### Order Statuses That Can Be Refunded:\n- `cancelled`\n- `processing`\n- `pending_payment`\n\n### Response:\n```json\n{\n  \"success\": true,\n  \"message\": \"Refund issued successfully\",\n  \"data\": {\n    \"refundId\": null,\n    \"amount\": 1500.00\n  }\n}\n```\n\n### Workflow Example:\n1. `PATCH /orders/:id/cancel` — cancel the order (restocks inventory)\n2. `PATCH /orders/:id/refund` — issue refund if payment was made"
+        },
+        {
+          "name": "Admin: Get All Orders",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}orders?page=1&limit=10&status=shipped&isConfirmed=true",
+              "host": [
+                "{{server}}orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "shipped"
+                },
+                {
+                  "key": "isConfirmed",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "**Returns enriched order list for admin dashboard.**\n\n### Default Behavior:\n- Excludes orders with status `pending_payment` and `payment_expired` (internal system statuses)\n- Returns paginated results sorted by creation date (newest first)\n\n### Query Parameters:\n- `page` / `limit`: Pagination (default: page=1, limit=10)\n- `status`: Filter by order status (`processing`, `shipped`, `delivered`, `cancelled`, `returned`, `payment_failed`)\n- `isConfirmed`: Filter by confirmation status (`true` / `false`)\n- `startDate` / `endDate`: Filter by date range\n- `search`: Search by order ID or tracking number\n\n### Response Fields:\n**Order-level:**\n- `orderId`: Order ID\n- `createdAt`: Order creation date/time\n- `customerName` / `customerPhone`: Customer details (from User model)\n- `subtotal`: Sum of base prices * qty (before discount/tax)\n- `couponDiscount`: Total coupon discount applied\n- `itemTax`: Sum of all item-level taxes\n- `shippingCost`: Shipping cost (Rs. 50 if subtotal < 1000, else free)\n- `totalAmount`: Final order amount (subtotal - couponDiscount + itemTax + shippingCost)\n- `appliedCoupon`: Coupon code used (null if none)\n- `orderStatus`: Sanitized status label (e.g., \"Processing\", \"Shipped\")\n- `orderStatusRaw`: Raw status enum value (for filtering)\n- `paymentMethod`: Payment mode (`razorpay`, `cod`, `manual`)\n- `paymentStatus`: Payment status (`pending`, `success`, `failed`, `refunded`)\n- `isConfirmed`: Whether order is confirmed by admin\n\n**Items:**\n- `title`, `sku`, `coverImage`: Product info from snapshot\n- `price`: Base price per unit at order time\n- `quantity`: Item quantity\n- `subtotal`: Base subtotal (price * quantity)\n- `effectiveSubtotal`: Subtotal after discount\n- `itemTotal`: Final line total (effectiveSubtotal + totalTax)\n- `taxDetails`: Array of `{name, slab, amount}` per tax slab (e.g., CGST, SGST)\n- `totalTax`: Sum of all tax amounts for this item\n- `attributes`: Variant attributes object (e.g., `{ \"color\": \"Red\", \"size\": \"M\" }`)\n- `itemStatus`: Per-item status (`active`, `return_requested`, etc.)\n\n**Shipping:**\n- `shippingAddress`: Full shipping address object\n\n### Example Response:\n```json\n{\n  \"orders\": [{\n    \"orderId\": \"...\",\n    \"createdAt\": \"2024-05-21T10:30:00.000Z\",\n    \"customerName\": \"John Doe\",\n    \"customerPhone\": \"9876543210\",\n    \"subtotal\": 1500.00,\n    \"couponDiscount\": 150.00,\n    \"itemTax\": 243.00,\n    \"shippingCost\": 50.00,\n    \"totalAmount\": 1643.00,\n    \"appliedCoupon\": \"WELCOME10\",\n    \"orderStatus\": \"Processing\",\n    \"orderStatusRaw\": \"processing\",\n    \"paymentMethod\": \"Online (Razorpay)\",\n    \"paymentStatus\": \"success\",\n    \"items\": [{\n      \"title\": \"Classic Polo T-Shirt\",\n      \"sku\": \"POLO-BLU-M\",\n      \"coverImage\": \"https://...\",\n      \"price\": 750.00,\n      \"quantity\": 2,\n      \"subtotal\": 1500.00,\n      \"effectiveSubtotal\": 1350.00,\n      \"itemTotal\": 1593.00,\n      \"taxDetails\": [{\"name\": \"CGST\", \"slab\": 9, \"amount\": 121.50}, {\"name\": \"SGST\", \"slab\": 9, \"amount\": 121.50}],\n      \"totalTax\": 243.00,\n      \"attributes\": { \"color\": \"Blue\", \"size\": \"M\" },\n      \"itemStatus\": \"active\"\n    }],\n    \"isConfirmed\": false,\n    \"shippingAddress\": { \"fullName\": \"...\", \"phone\": \"...\", ... }\n  }],\n  \"pagination\": { \"total\": 150, \"page\": 1, \"limit\": 10, \"totalPages\": 15 }\n}\n```"
+          }
+        },
+        {
+          "name": "Admin: Trigger Shiprocket Dispatch",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{server}}orders/:id/dispatch",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                ":id",
+                "dispatch"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            },
+            "description": "**Creates Shiprocket shipment and confirms order.**\n\nThis endpoint combines confirmation and dispatch:\n1. Sets `isConfirmed = true`, `confirmedBy`, `confirmedAt`\n2. Creates Shiprocket pickup with AWB generation\n3. Updates `orderStatus` to `shipped`\n4. Stores tracking info in `order.shipments[]`\n\n**Note:** Only orders in `processing` status can be dispatched.\n\n**Response:** Returns order with shipments array containing tracking info."
+          }
+        },
+        {
+          "name": "Admin: Update Order Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"orderStatus\": \"shipped\",\n    \"comment\": \"Order has been picked up by the courier.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}orders/:id/status",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                ":id",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Confirm Partial Order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"items\": [\n        { \"itemId\": \"item_id_1\", \"quantity\": 2 },\n        { \"itemId\": \"item_id_2\", \"quantity\": 1 },\n        { \"itemId\": \"item_id_3\", \"quantity\": 0 }\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}orders/:id/confirm-partial",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                ":id",
+                "confirm-partial"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            },
+            "description": "**Partially confirm an order with quantity adjustments.**\n\n### Body:\n- `itemId`: Order item ID (_id from items array)\n- `quantity`: 0 = reject item, >0 = confirm with this quantity\n\n### Behavior:\n- Items with quantity = 0: Marked as `rejected_by_admin`, stock restored\n- Items with reduced quantity: Updated, excess stock restored\n- Items with same quantity: No change\n\n### Pricing:\n- **DO NOT recalculate coupon** - it stays as-is (admin's decision, not customer's fault)\n- `order.subtotal` and `order.totalAmount` reduced by removed item subtotals\n- `itemTax` and `shippingCost` unchanged\n\n### Refund:\n- If order was paid (Razorpay), partial refund issued for removed amount\n\n### Response:\n```json\n{\n  \"orderId\": \"order_123\",\n  \"summary\": {\n    \"confirmed\": 1,\n    \"reduced\": 1,\n    \"rejected\": 1,\n    \"totalRefund\": 300\n  },\n  \"itemChanges\": [],\n  \"order\": {}\n}\n```"
+          }
+        },
+        {
+          "name": "Admin: Track Order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}orders/:id/track",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                ":id",
+                "track"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            },
+            "description": "**Track order shipment status from Shiprocket.**\n\n### Response:\n```json\n{\n  \"shipments\": [{\n    \"warehouseId\": \"...\",\n    \"provider\": \"Delhivery\",\n    \"trackingNumber\": \"SR123456789\",\n    \"labelUrl\": \"https://shiprocket.com/label.pdf\",\n    \"trackUrl\": \"https://shiprocket.co.in/tracking/SR123456789\",\n    \"trackingData\": {\n      \"trackStatus\": \"delivered\",\n      \"currentStatus\": \"...\",\n      \"statusSteps\": [...],\n      \"eta\": \"...\"\n    }\n  }]\n}\n```\n\n**Note:** `labelUrl` is the printable shipping label - open in browser to print."
+          }
+        },
+        {
+          "name": "Admin: Approve Return",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"adminComment\": \"Return approved. Reverse pickup scheduled.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}orders/:id/return/approve",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                ":id",
+                "return",
+                "approve"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Reject Return",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"reason\": \"Item was not in original packaging.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}orders/:id/return/reject",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                ":id",
+                "return",
+                "reject"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Mark Item Received",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"adminComment\": \"Item received and inspected at warehouse.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}orders/:id/return/received",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                ":id",
+                "return",
+                "received"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Issue Refund",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"reason\": \"Full refund issued after return inspection.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}orders/:id/return/refund",
+              "host": [
+                "{{server}}orders"
+              ],
+              "path": [
+                ":id",
+                "return",
+                "refund"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Initiate Payment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"orderId\": \"60d5ecb8b392d40015f8e6a1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}payments/initiate",
+              "host": [
+                "{{server}}payments"
+              ],
+              "path": [
+                "initiate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Payment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"razorpayOrderId\": \"order_xyz\",\n    \"razorpayPaymentId\": \"pay_xyz\",\n    \"razorpaySignature\": \"signature_xyz\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}payments/verify",
+              "host": [
+                "{{server}}payments"
+              ],
+              "path": [
+                "verify"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Razorpay Webhook (System)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-razorpay-signature",
+                "value": "your_webhook_signature",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"event\": \"payment.captured\",\n    \"payload\": {\n        \"payment\": {\n            \"entity\": {\n                \"id\": \"pay_xyz\",\n                \"order_id\": \"order_xyz\"\n            }\n        }\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}payments/webhook",
+              "host": [
+                "{{server}}payments"
+              ],
+              "path": [
+                "webhook"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Get All Transactions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}payments?page=1&limit=10&status=success",
+              "host": [
+                "{{server}}payments"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "success"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Returns",
+      "item": [
+        {
+          "name": "Customer: Create Return Request",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"orderId\": \"60d5ecb8b392d40015f8e6a1\",\n    \"itemId\": \"60d5ecb8b392d40015f8e6a2\",\n    \"type\": \"return\",\n    \"reason\": \"Item arrived damaged\",\n    \"customerComment\": \"The screen is cracked.\",\n    \"imagesArray\": [\n        {\n            \"url\": \"https://res.cloudinary.com/demo/image/upload/sample.jpg\",\n            \"publicId\": \"sample_id\"\n        }\n    ],\n    \"pickupAddress\": {\n        \"fullName\": \"John Doe\",\n        \"phone\": \"9876543210\",\n        \"addressLine1\": \"123, Luxury Apartments\",\n        \"city\": \"Mumbai\",\n        \"state\": \"Maharashtra\",\n        \"postalCode\": \"400001\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}returns",
+              "host": [
+                "{{server}}returns"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Get All Return Requests",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}returns?page=1&limit=10&status=requested",
+              "host": [
+                "{{server}}returns"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "requested"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Approve Return Request",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"logisticsMethod\": \"shiprocket\",\n    \"adminNotes\": \"Reverse pickup scheduled.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}returns/:id/approve",
+              "host": [
+                "{{server}}returns"
+              ],
+              "path": [
+                ":id",
+                "approve"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Reject Return Request",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"reason\": \"Invalid proof of damage.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}returns/:id/reject",
+              "host": [
+                "{{server}}returns"
+              ],
+              "path": [
+                ":id",
+                "reject"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Mark Item Received",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"adminNotes\": \"Item received and inspected.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}returns/:id/received",
+              "host": [
+                "{{server}}returns"
+              ],
+              "path": [
+                ":id",
+                "received"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin: Resolve Return (Refund/Replace)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refundMethod\": \"razorpay\",\n    \"manualReference\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}returns/:id/resolve",
+              "host": [
+                "{{server}}returns"
+              ],
+              "path": [
+                ":id",
+                "resolve"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Addresses",
+      "item": [
+        {
+          "name": "Get My Addresses",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}addresses",
+              "host": [
+                "{{server}}addresses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fullName\": \"John Doe\",\n    \"phone\": \"9876543210\",\n    \"addressLine1\": \"123, Luxury Apartments\",\n    \"addressLine2\": \"Road No. 4\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"postalCode\": \"400001\",\n    \"country\": \"India\",\n    \"isDefault\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}addresses",
+              "host": [
+                "{{server}}addresses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fullName\": \"John Doe Updated\",\n    \"city\": \"Pune\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{server}}addresses/:id",
+              "host": [
+                "{{server}}addresses"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{server}}addresses/:id",
+              "host": [
+                "{{server}}addresses"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Set Default Address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{server}}addresses/:id/default",
+              "host": [
+                "{{server}}addresses"
+              ],
+              "path": [
+                ":id",
+                "default"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60d5ecb8b392d40015f8e6a1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shiprocket",
+      "item": [
+        {
+          "name": "Check Courier Serviceability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}shiprocket/serviceability?pickup_postcode=110001&delivery_postcode=400001&weight=0.5&cod=1",
+              "host": [
+                "{{server}}shiprocket"
+              ],
+              "path": [
+                "serviceability"
+              ],
+              "query": [
+                {
+                  "key": "pickup_postcode",
+                  "value": "110001"
+                },
+                {
+                  "key": "delivery_postcode",
+                  "value": "400001"
+                },
+                {
+                  "key": "weight",
+                  "value": "0.5"
+                },
+                {
+                  "key": "cod",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tax Workflow",
+      "item": [
+        {
+          "name": "1. Create Root Category with Tax",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Electronics",
+                  "type": "text"
+                },
+                {
+                  "key": "slug",
+                  "value": "electronics",
+                  "type": "text"
+                },
+                {
+                  "key": "taxes",
+                  "value": "[{\"name\": \"CGST\", \"slab\": 9}, {\"name\": \"SGST\", \"slab\": 9}]",
+                  "type": "text",
+                  "description": "18% total GST — CGST 9% + SGST 9%"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{server}}categories",
+              "host": [
+                "{{server}}categories"
+              ]
+            },
+            "description": "**Step 1/4.** Creates a root category (no parent) with its own tax slabs. This category's `effectiveTax` = its own taxes.\n\n**Response:** `effectiveTax: [{name: 'CGST', slab: 9}, {name: 'SGST', slab: 9}]`"
+          }
+        },
+        {
+          "name": "2. Create Child Category (inherits Tax from Parent)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Smartphones",
+                  "type": "text"
+                },
+                {
+                  "key": "slug",
+                  "value": "smartphones",
+                  "type": "text"
+                },
+                {
+                  "key": "parentCategoryId",
+                  "value": "{{parentCategoryId}}",
+                  "type": "text",
+                  "description": "ID of the root Electronics category from Step 1"
+                },
+                {
+                  "key": "taxes",
+                  "value": "",
+                  "type": "text",
+                  "description": "Omitted — this child will inherit from parent"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{server}}categories",
+              "host": [
+                "{{server}}categories"
+              ]
+            },
+            "description": "**Step 2/4.** Child category with NO taxes field. Inherits from nearest ancestor (Electronics).\n\n**Response:** `taxes: []`, `effectiveTax: [{name: 'CGST', slab: 9}, {name: 'SGST', slab: 9}]` (inherited from parent)."
+          }
+        },
+        {
+          "name": "3. Create Product (inherits Tax from Category)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "iPhone 15",
+                  "type": "text"
+                },
+                {
+                  "key": "desc",
+                  "value": "Latest Apple smartphone",
+                  "type": "text"
+                },
+                {
+                  "key": "brandId",
+                  "value": "{{brandId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "{{childCategoryId}}",
+                  "type": "text",
+                  "description": "ID of the Smartphones child category from Step 2"
+                },
+                {
+                  "key": "pickupWareHouseId",
+                  "value": "{{warehouseId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "isTaxInclude",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "taxes",
+                  "value": "",
+                  "type": "text",
+                  "description": "Omitted — product will inherit from category"
+                },
+                {
+                  "key": "isPublished",
+                  "value": "false",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{server}}products",
+              "host": [
+                "{{server}}products"
+              ]
+            },
+            "description": "**Step 3/4.** Product with NO `taxes` field. Inherits from its category's `effectiveTax`.\n\n**Response:** `taxes: []`, `effectiveTax: [{name: 'CGST', slab: 9}, {name: 'SGST', slab: 9}]` (inherited from Smartphones → Electronics).\n\n**Note:** The `effectiveTax` is what the frontend should use to compute and display the tax on the product page and cart."
+          }
+        },
+        {
+          "name": "4. Override Product Tax (use own tax instead of category's)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "taxes",
+                  "value": "[{\"name\": \"Exempt\", \"slab\": 0}]",
+                  "type": "text",
+                  "description": "Product's own tax override — 0% exempt. Set this to use a special rate instead of the category's tax."
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{server}}products/:id",
+              "host": [
+                "{{server}}products"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{productId}}"
+                }
+              ]
+            },
+            "description": "**Step 4/4.** Sets the product's own `taxes` to override the inherited category tax.\n\n**Scenario A — Special rate:** Set `taxes: [{name: 'Exempt', slab: 0}]` → `effectiveTax: [{name: 'Exempt', slab: 0}]`.\n\n**Scenario B — Switch back to category tax:** Set `taxes: []` (empty array) → `effectiveTax` reverts to the category's resolved tax.\n\n**Frontend rule:** Always use `effectiveTax` — never `taxes` directly."
+          }
+        },
+        {
+          "name": "Tax Inheritance Summary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('=== Tax Inheritance Rules ===');",
+                  "console.log('1. Category: nearest ancestor wins');",
+                  "console.log('2. Product: own taxes → category effectiveTax → null');",
+                  "console.log('3. Empty taxes array on product = use category tax');",
+                  "console.log('4. Frontend: always use effectiveTax field, not taxes');",
+                  "console.log('');",
+                  "console.log('Tax calculation example:');",
+                  "console.log('  Price: ₹1000, effectiveTax: CGST 9% + SGST 9%');",
+                  "console.log('  Tax amount: ₹1000 * 0.09 + ₹1000 * 0.09 = ₹180');",
+                  "console.log('  Total: ₹1180 (if isTaxInclude=true) or ₹1000 + ₹180 (if false)');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{server}}products?page=1&limit=10",
+              "host": [
+                "{{server}}products"
+              ]
+            },
+            "description": "## Tax Inheritance — Quick Reference\n\n### Category Tax Flow\n```\nCategory (own taxes)        → effectiveTax = own taxes\nCategory (no taxes, parent) → effectiveTax = parent's effectiveTax\nCategory (no taxes, root)    → effectiveTax = null\n```\n\n### Product Tax Flow\n```\nProduct (own taxes set) → effectiveTax = own taxes\nProduct (no taxes)      → effectiveTax = category.effectiveTax\n```\n\n### Frontend Usage\n- Use `product.effectiveTax` to calculate and display tax\n- Use `product.isTaxInclude` to determine if price already has tax added\n- `product.taxes` is the raw stored value — do not use directly\n\n### Tax Calculation\n```\nIf isTaxInclude = true:\n  taxableAmount = price / (1 + totalTaxRate)\n  taxAmount = price - taxableAmount\n\nIf isTaxInclude = false:\n  taxableAmount = price\n  taxAmount = price * totalTaxRate\n\ntotalTaxRate = sum of all effectiveTax slabs / 100\n```\n\n### Example: CGST 9% + SGST 9%\n- Rate = 0.09 + 0.09 = 0.18 (18%)\n- Price ₹1000 ex-tax: tax = ₹180, total = ₹1180\n- Price ₹1180 inc-tax: taxable = ₹1000, tax = ₹180"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "server",
+      "value": "http://localhost:5000/api/v1/",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "your_access_token_here",
+      "type": "string"
+    }
+  ]
+}
