@@ -98,7 +98,7 @@ export const getAllReturnRequests = async (req: AuthRequest, res: Response, next
     const skip = (page - 1) * limit;
 
     const query: Record<string, unknown> = {};
-    if (req.query.status) query.status = req.query.status;
+    if (typeof req.query.status === 'string') query.status = req.query.status;
 
     const [requests, total] = await Promise.all([
       ReturnReplace.find(query)
@@ -138,8 +138,12 @@ export const approveReturnRequest = async (req: AuthRequest, res: Response, next
   session.startTransaction();
 
   try {
+    const { id } = req.params;
+    if (!id || Array.isArray(id)) {
+      return httpError(next, new Error('Invalid request'), req, 400);
+    }
     const { logisticsMethod, adminNotes } = req.body; // 'shiprocket' or 'manual'
-    const returnReq = await ReturnReplace.findById(req.params.id).session(session);
+    const returnReq = await ReturnReplace.findById(id).session(session);
 
     if (!returnReq || returnReq.status !== 'requested') {
       throw new Error('Valid requested return not found.');
@@ -201,9 +205,13 @@ export const approveReturnRequest = async (req: AuthRequest, res: Response, next
  */
 export const rejectReturnRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
+    const { id } = req.params;
+    if (!id || Array.isArray(id)) {
+      return httpError(next, new Error('Invalid request'), req, 400);
+    }
     const { reason } = req.body;
     const returnReq = await ReturnReplace.findOneAndUpdate(
-      { _id: req.params.id, status: 'requested' },
+      { _id: id, status: 'requested' },
       { status: 'rejected', adminNotes: reason },
       { returnDocument: 'after' }
     );
@@ -228,8 +236,12 @@ export const rejectReturnRequest = async (req: AuthRequest, res: Response, next:
  */
 export const markItemReceived = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
+    const { id } = req.params;
+    if (!id || Array.isArray(id)) {
+      return httpError(next, new Error('Invalid request'), req, 400);
+    }
     const returnReq = await ReturnReplace.findOneAndUpdate(
-      { _id: req.params.id, status: { $in: ['pickup_scheduled', 'pickup_initiated'] } },
+      { _id: id, status: { $in: ['pickup_scheduled', 'pickup_initiated'] } },
       { status: 'item_received', adminNotes: req.body.adminNotes },
       { returnDocument: 'after' }
     );
@@ -255,7 +267,11 @@ export const resolveReturn = async (req: AuthRequest, res: Response, next: NextF
   session.startTransaction();
 
   try {
-    const returnReq = await ReturnReplace.findById(req.params.id).session(session);
+    const { id } = req.params;
+    if (!id || Array.isArray(id)) {
+      return httpError(next, new Error('Invalid request'), req, 400);
+    }
+    const returnReq = await ReturnReplace.findById(id).session(session);
     if (!returnReq || returnReq.status !== 'item_received') {
       throw new Error('Item must be marked as received before resolution.');
     }

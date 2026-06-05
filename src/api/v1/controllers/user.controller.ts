@@ -122,13 +122,15 @@ export const getAllUsers = async (req: AuthRequest, res: Response, next: NextFun
 
     // 2. Filter Setup
     const filter: IUserFilter = {};
-    if (req.query.role) {
-      const roles = (req.query.role as string).split(',').map((r) => r.trim());
+    if (typeof req.query.role === 'string') {
+      const roles = req.query.role.split(',').map((r) => r.trim());
       filter.role = roles.length > 1 ? { $in: roles } : roles[0];
     }
-    if (req.query.isActive) filter.isActive = req.query.isActive === 'true';
-    if (req.query.search) {
-      const search = req.query.search as string;
+    if (req.query.isActive !== undefined) {
+      filter.isActive = req.query.isActive === 'true';
+    }
+    if (typeof req.query.search === 'string') {
+      const search = req.query.search;
       filter.$or = [
         { name: { $regex: search, $options: 'i' } },
         { phone: { $regex: search, $options: 'i' } },
@@ -166,7 +168,11 @@ export const getAllCustomers = async (req: AuthRequest, res: Response, next: Nex
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
-    const { search, location, fromDate, toDate, sortBy } = req.query;
+    const search = typeof req.query.search === 'string' ? req.query.search : undefined;
+    const location = typeof req.query.location === 'string' ? req.query.location : undefined;
+    const fromDate = typeof req.query.fromDate === 'string' ? req.query.fromDate : undefined;
+    const toDate = typeof req.query.toDate === 'string' ? req.query.toDate : undefined;
+    const sortBy = typeof req.query.sortBy === 'string' ? req.query.sortBy : undefined;
 
     const pipeline: PipelineStage[] = [{ $match: { role: 'customer' } }];
 
@@ -175,8 +181,8 @@ export const getAllCustomers = async (req: AuthRequest, res: Response, next: Nex
       pipeline.push({
         $match: {
           $or: [
-            { name: { $regex: search as string, $options: 'i' } },
-            { phone: { $regex: search as string, $options: 'i' } },
+            { name: { $regex: search, $options: 'i' } },
+            { phone: { $regex: search, $options: 'i' } },
           ],
         },
       });
@@ -185,13 +191,20 @@ export const getAllCustomers = async (req: AuthRequest, res: Response, next: Nex
     // 2. Date range filter (Registration Date)
     if (fromDate || toDate) {
       const dateFilter: Record<string, Date> = {};
-      if (fromDate) dateFilter.$gte = new Date(fromDate as string);
-      if (toDate) {
-        const endOfToDate = new Date(toDate as string);
-        endOfToDate.setHours(23, 59, 59, 999);
-        dateFilter.$lte = endOfToDate;
+      if (fromDate) {
+        const d = new Date(fromDate);
+        if (!isNaN(d.getTime())) dateFilter.$gte = d;
       }
-      pipeline.push({ $match: { createdAt: dateFilter } });
+      if (toDate) {
+        const d = new Date(toDate);
+        if (!isNaN(d.getTime())) {
+          d.setHours(23, 59, 59, 999);
+          dateFilter.$lte = d;
+        }
+      }
+      if (Object.keys(dateFilter).length > 0) {
+        pipeline.push({ $match: { createdAt: dateFilter } });
+      }
     }
 
     // 3. Lookup Orders to calculate total spend and total orders
@@ -387,7 +400,7 @@ export const toggleUserStatus = async (req: AuthRequest, res: Response, next: Ne
   session.startTransaction();
   try {
     const { id } = req.params;
-    if (Array.isArray(id)) {
+    if (!id || Array.isArray(id)) {
       return httpError(next, new Error('Invalid request'), req, 400);
     }
 
@@ -422,7 +435,7 @@ export const deleteUser = async (req: AuthRequest, res: Response, next: NextFunc
   session.startTransaction();
   try {
     const { id } = req.params;
-    if (Array.isArray(id)) {
+    if (!id || Array.isArray(id)) {
       return httpError(next, new Error('Invalid request'), req, 400);
     }
 
