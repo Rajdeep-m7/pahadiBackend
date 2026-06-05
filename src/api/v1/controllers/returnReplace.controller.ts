@@ -241,7 +241,7 @@ export const markItemReceived = async (req: AuthRequest, res: Response, next: Ne
       return httpError(next, new Error('Invalid request'), req, 400);
     }
     const returnReq = await ReturnReplace.findOneAndUpdate(
-      { _id: id, status: { $in: ['pickup_scheduled', 'pickup_initiated'] } },
+      { _id: id, status: { $in: ['pickup_scheduled', 'pickup_initiated'] } } as any,
       { status: 'item_received', adminNotes: req.body.adminNotes },
       { returnDocument: 'after' }
     );

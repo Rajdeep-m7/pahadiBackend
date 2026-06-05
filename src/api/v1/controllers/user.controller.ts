@@ -104,12 +104,6 @@ export const createStaff = async (req: AuthRequest, res: Response, next: NextFun
   }
 };
 
-interface IUserFilter {
-  role?: string | { $in: string[] };
-  isActive?: boolean;
-  $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
-}
-
 // ==========================================
 // GET ALL USERS (With Pagination & Filters)
 // ==========================================
@@ -121,7 +115,7 @@ export const getAllUsers = async (req: AuthRequest, res: Response, next: NextFun
     const skip = (page - 1) * limit;
 
     // 2. Filter Setup
-    const filter: IUserFilter = {};
+    const filter: any = {};
     if (typeof req.query.role === 'string') {
       const roles = req.query.role.split(',').map((r) => r.trim());
       filter.role = roles.length > 1 ? { $in: roles } : roles[0];
@@ -138,12 +132,12 @@ export const getAllUsers = async (req: AuthRequest, res: Response, next: NextFun
     }
 
     // 3. Execute Query
-    const users = await User.find(filter as IUserFilter)
+    const users = await User.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await User.countDocuments(filter as IUserFilter);
+    const total = await User.countDocuments(filter);
 
     return httpResponse(req, res, 200, 'Users fetched successfully', {
       users,
