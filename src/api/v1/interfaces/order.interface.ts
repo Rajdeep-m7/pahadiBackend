@@ -7,11 +7,8 @@ export interface IOrderSnapshot {
   coverImage: string;
   sku: string;
   attributes?: Record<string, string>;
-<<<<<<< HEAD
   returnPolicyType?: 'REPLACE' | 'RETURN' | 'BOTH' | 'NONE';
   returnWindowDays?: number;
-=======
->>>>>>> 99a0ba3b322297f6534bb90e3400f618c15c4bd0
 }
 
 export interface IOrderItem {
@@ -46,12 +43,9 @@ export interface IOrderShipments {
   trackingNumber?: string;
   shippingLabelUrl?: string;
   deliveryStatus?: string;
-<<<<<<< HEAD
   shiprocketOrderId?: number;
   shiprocketShipmentId?: number;
   trackingData?: any;
-=======
->>>>>>> 99a0ba3b322297f6534bb90e3400f618c15c4bd0
 }
 
 export interface IOrder {
