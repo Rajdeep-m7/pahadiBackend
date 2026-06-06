@@ -41,6 +41,10 @@ export const getCart = async (req: AuthRequest, res: Response, next: NextFunctio
       populate: {
         path: 'productId',
         select: 'taxes categoryId',
+        populate: {
+          path: 'categoryId',
+          select: 'name',
+        },
       },
     });
 

@@ -122,6 +122,12 @@ export const triggerDispatchSchema = z.object({
       .string({ message: 'Order ID is required' })
       .regex(objectIdRegex, 'Invalid Order ID format'),
   }),
+  body: z.object({
+    weight: z.number({ message: 'Weight must be a number' }).positive().optional(),
+    length: z.number({ message: 'Length must be a number' }).positive().optional(),
+    breadth: z.number({ message: 'Breadth must be a number' }).positive().optional(),
+    height: z.number({ message: 'Height must be a number' }).positive().optional(),
+  }).optional(),
 });
 
 // ==========================================

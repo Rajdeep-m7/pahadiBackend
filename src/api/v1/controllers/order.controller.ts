@@ -898,6 +898,8 @@ export const triggerShipRocketDispatch = async (
       throw new Error('Order not found or has no items to dispatch.');
     }
 
+    const { weight, length, breadth, height } = req.body;
+
     const user = await User.findById(order.userId).session(session);
     const customerEmail = user?.email || env.SUPPORT_EMAIL;
 
@@ -945,10 +947,10 @@ export const triggerShipRocketDispatch = async (
         customerEmail: customerEmail,
         shippingAddress: order.shippingAddress,
         items: shiprocketItems,
-        weight: 0.5, // Default weight
-        length: 10,   // Default dimensions
-        breadth: 10,
-        height: 10,
+        weight: weight || 0.5, // Use provided weight or default
+        length: length || 10,   // Use provided length or default
+        breadth: breadth || 10, // Use provided breadth or default
+        height: height || 10,   // Use provided height or default
       });
 
       // Save the shipment details
