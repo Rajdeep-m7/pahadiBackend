@@ -10,6 +10,7 @@ import { httpError } from '@/api/v1/utils/httpError';
 import httpResponse from '@/api/v1/utils/httpResponse';
 import { AuthRequest } from '@/api/v1/interfaces/auth.interface';
 import env from '@/config/env';
+import { pushNotificationService } from '@/api/v1/services/pushNotification.service';
 
 // ==========================================
 // HELPERS
@@ -88,6 +89,20 @@ const finalizeSuccessfulPayment = async (
         { userId: order.userId },
         { $pull: { items: { variantId: { $in: variantIdsToRemove } } } }
       ).session(session);
+
+      // 4. Send Push Notification for Order Confirmation
+      const firstItemTitle = order.items[0]?.snapshot?.title || 'items';
+      const orderItemsCount = order.items.length;
+      const orderDisplayName = orderItemsCount > 1 
+        ? `"${firstItemTitle}" and ${orderItemsCount - 1} more item(s)` 
+        : `"${firstItemTitle}"`;
+
+      pushNotificationService.sendPushNotification(
+        order.userId,
+        'Order Confirmed! 🎉',
+        `Thank you! Your order for ${orderDisplayName} has been placed successfully.`,
+        { orderId: order._id.toString() }
+      ).catch((err) => console.error('[PushNotification] Error sending order confirmation:', err));
     }
 
     // 4. Update Transaction

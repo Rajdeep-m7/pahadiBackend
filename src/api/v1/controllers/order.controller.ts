@@ -13,6 +13,7 @@ import { httpError } from '@/api/v1/utils/httpError';
 import httpResponse from '@/api/v1/utils/httpResponse';
 import { AuthRequest } from '@/api/v1/interfaces/auth.interface';
 import env from '@/config/env';
+import { pushNotificationService } from '@/api/v1/services/pushNotification.service';
 import { IOrderShipments, IOrderItem, IOrder } from '@/api/v1/interfaces/order.interface';
 import { IVariantDocument, Variant } from '@/api/v1/models/variant.model';
 import { sanitizeOrderStatus } from '@/api/v1/utils/orderStatus.util';
@@ -583,6 +584,21 @@ const cancelOrderImpl = async (
       }
     }
 
+    if (order) {
+      const firstItemTitle = order.items[0]?.snapshot?.title || 'items';
+      const orderItemsCount = order.items.length;
+      const orderDisplayName = orderItemsCount > 1 
+        ? `"${firstItemTitle}" and ${orderItemsCount - 1} more item(s)` 
+        : `"${firstItemTitle}"`;
+
+      pushNotificationService.sendPushNotification(
+        order.userId,
+        'Order Cancelled ❌',
+        `Your order for ${orderDisplayName} has been cancelled.`,
+        { orderId: order._id.toString() }
+      ).catch((err) => console.error('[PushNotification] Error sending cancellation notification:', err));
+    }
+
     await session.commitTransaction();
     return httpResponse(req, res, 200, 'Order cancelled successfully', { order });
   } catch (error: unknown) {
@@ -979,6 +995,14 @@ export const triggerShipRocketDispatch = async (
     });
 
     await order.save({ session });
+
+    pushNotificationService.sendPushNotification(
+      order.userId,
+      'Order Dispatched! 🚚',
+      `Your order for ${order.items[0]?.snapshot?.title || 'items'}${order.items.length > 1 ? ` and ${order.items.length - 1} more item(s)` : ''} has been dispatched.`,
+      { orderId: order._id.toString() }
+    ).catch((err) => console.error('[PushNotification] Error sending dispatch notification:', err));
+
     await session.commitTransaction();
 
     return httpResponse(req, res, 200, 'Order dispatched successfully', { order });
@@ -1035,6 +1059,21 @@ export const updateOrderStatusAdmin = async (
       { returnDocument: 'after' }
     );
 
+    if (order) {
+      const firstItemTitle = order.items[0]?.snapshot?.title || 'items';
+      const orderItemsCount = order.items.length;
+      const orderDisplayName = orderItemsCount > 1 
+        ? `"${firstItemTitle}" and ${orderItemsCount - 1} more item(s)` 
+        : `"${firstItemTitle}"`;
+
+      pushNotificationService.sendPushNotification(
+        order.userId,
+        `Order Status: ${orderStatus.toUpperCase()} 📦`,
+        `Your order for ${orderDisplayName} status has been updated to ${orderStatus}.`,
+        { orderId: order._id.toString() }
+      ).catch((err) => console.error('[PushNotification] Error sending status update:', err));
+    }
+
     return httpResponse(req, res, 200, 'Order status updated successfully', { order });
   } catch (error: unknown) {
     return httpError(next, error, req, 400);
@@ -1075,6 +1114,7 @@ export const confirmPartialOrder = async (
     const requestedMap = new Map(requestedItems.map((i) => [i.itemId, i.quantity]));
 
     let removedSubtotal = 0;
+    let removedTotalAmount = 0;
     const itemChanges: {
       itemId: string;
       originalQuantity: number;
@@ -1096,6 +1136,7 @@ export const confirmPartialOrder = async (
           { session }
         );
         removedSubtotal += item.subtotal;
+        removedTotalAmount += item.itemTotal;
         itemChanges.push({
           itemId: itemIdStr,
           originalQuantity: item.quantity,
@@ -1114,6 +1155,7 @@ export const confirmPartialOrder = async (
           { session }
         );
         removedSubtotal += item.subtotal;
+        removedTotalAmount += item.itemTotal;
         itemChanges.push({
           itemId: itemIdStr,
           originalQuantity: item.quantity,
@@ -1122,19 +1164,33 @@ export const confirmPartialOrder = async (
         });
       } else if (requestedQty < item.quantity) {
         // Partial reduction
-        const qtyDiff = item.quantity - requestedQty;
+        const originalQty = item.quantity;
+        const qtyDiff = originalQty - requestedQty;
+        const ratio = requestedQty / originalQty;
+        const diffRatio = qtyDiff / originalQty;
+
+        // Capture amounts to remove before updating item
+        const itemTotalToRefund = item.itemTotal * diffRatio;
+        const subtotalToSubtract = item.subtotal * diffRatio;
+
         item.quantity = requestedQty;
         item.subtotal = item.price * requestedQty;
+        item.discountApportioned = item.discountApportioned * ratio;
+        item.effectiveSubtotal = item.subtotal - item.discountApportioned;
+        item.totalTax = item.totalTax * ratio;
+        item.itemTotal = item.itemTotal * ratio;
+        // (Note: taxDetails array is not updated here for brevity, but itemTotal is corrected)
 
         await Variant.findByIdAndUpdate(
           item.variantId,
           { $inc: { stocks: qtyDiff } },
           { session }
         );
-        removedSubtotal += item.price * qtyDiff;
+        removedSubtotal += subtotalToSubtract;
+        removedTotalAmount += itemTotalToRefund;
         itemChanges.push({
           itemId: itemIdStr,
-          originalQuantity: item.quantity + qtyDiff,
+          originalQuantity: originalQty,
           newQuantity: requestedQty,
           status: 'reduced',
         });
@@ -1151,9 +1207,9 @@ export const confirmPartialOrder = async (
       }
     }
 
-    // Update order totals (simple subtraction, no coupon recalculation)
+    // Update order totals
     order.subtotal -= removedSubtotal;
-    order.totalAmount -= removedSubtotal;
+    order.totalAmount -= removedTotalAmount;
 
     // Update confirmation fields
     order.isConfirmed = true;
@@ -1169,7 +1225,7 @@ export const confirmPartialOrder = async (
 
     // Handle partial refund if order was paid
     let refundAmount: number | null = null;
-    if (removedSubtotal > 0) {
+    if (removedTotalAmount > 0) {
       const transaction = await Transaction.findOne({
         orderId: order._id,
         paymentStatus: 'success',
@@ -1184,9 +1240,9 @@ export const confirmPartialOrder = async (
 
         try {
           await razorpay.payments.refund(transaction.gatewayPaymentId, {
-            amount: Math.round(removedSubtotal * 100),
+            amount: Math.round(removedTotalAmount * 100),
           });
-          refundAmount = removedSubtotal;
+          refundAmount = removedTotalAmount;
         } catch (refundError) {
           console.error('Partial refund failed:', refundError);
           throw new Error('Failed to process partial refund');

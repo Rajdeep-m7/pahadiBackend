@@ -6,4 +6,5 @@ export interface IUser {
   role: 'customer' | 'staff' | 'admin';
   isActive: boolean;
   tokensRevokedAt?: Date;
+  pushToken?: string;
 }

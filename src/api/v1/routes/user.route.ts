@@ -9,6 +9,7 @@ import {
   updateUser,
   toggleUserStatus,
   deleteUser,
+  updatePushToken,
 } from '@/api/v1/controllers/user.controller';
 import { validateRequest } from '@/api/v1/middlewares/validateRequest.middleware';
 import { protect, restrictTo } from '@/api/v1/middlewares/auth.middleware';
@@ -21,6 +22,7 @@ import {
   getUserByIdSchema,
   toggleUserStatusSchema,
   deleteUserSchema,
+  updatePushTokenSchema,
 } from '@/api/v1/validations/user.validation';
 
 const router = Router();
@@ -32,6 +34,7 @@ router.use(protect);
 
 router.get('/me', me);
 router.patch('/me', validateRequest(updateMeSchema), updateMe);
+router.patch('/push-token', validateRequest(updatePushTokenSchema), updatePushToken);
 
 // ==========================================
 // STAFF / ADMIN ROUTES

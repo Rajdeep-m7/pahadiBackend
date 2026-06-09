@@ -612,7 +612,7 @@ export const searchVariants = async (req: Request, res: Response, next: NextFunc
     // 8. POPULATE PRODUCT DATA
     await Variant.populate(searchResults, {
       path: 'productId',
-      select: 'title categoryId brandId default_slug displayPrice displayMrp displayDiscount',
+      select: 'title categoryId brandId default_slug displayPrice displayMrp displayDiscount rating numReviews',
       populate: [
         { path: 'brandId', select: 'name' },
         { path: 'categoryId', select: 'name' },

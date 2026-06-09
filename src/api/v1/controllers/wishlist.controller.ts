@@ -13,10 +13,18 @@ export const getWishlist = async (req: AuthRequest, res: Response, next: NextFun
   try {
     if (!req.user) throw new Error('Not authenticated');
 
-    const wishlist = await Wishlist.findOne({ userId: req.user._id }).populate(
-      'variantIds',
-      'title price mrp coverImage stocks slug'
-    );
+    const wishlist = await Wishlist.findOne({ userId: req.user._id }).populate({
+      path: 'variantIds',
+      select: 'title price mrp coverImage stocks slug productId attributes',
+      populate: {
+        path: 'productId',
+        select: 'title coverImage rating categoryId reviews slug',
+        populate: {
+          path: 'categoryId',
+          select: 'name slug'
+        }
+      }
+    });
 
     return httpResponse(
       req,

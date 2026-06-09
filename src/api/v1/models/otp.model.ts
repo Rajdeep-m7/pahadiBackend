@@ -11,7 +11,7 @@ const OtpSchema = new Schema<IOtpDocument>({
   otp: { type: String, required: true },
   type: {
     type: String,
-    enum: ['login', 'verification', 'password_reset', 'mobile_change'],
+    enum: ['login', 'verification', 'password_reset', 'mobile_change', 'account_deletion'],
     default: 'login',
     required: true,
   },

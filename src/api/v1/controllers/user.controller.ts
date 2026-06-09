@@ -450,3 +450,29 @@ export const deleteUser = async (req: AuthRequest, res: Response, next: NextFunc
     session.endSession();
   }
 };
+
+// ==========================================
+// UPDATE PUSH TOKEN
+// ==========================================
+export const updatePushToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const { pushToken } = req.body;
+    if (!req.user?._id) {
+      throw new Error('Not authenticated');
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: { pushToken } },
+      { new: true }
+    );
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return httpResponse(req, res, 200, 'Push token updated successfully');
+  } catch (error: unknown) {
+    return httpError(next, error, req, 400);
+  }
+};

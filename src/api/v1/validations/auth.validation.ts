@@ -47,6 +47,14 @@ export const verifyOtpMobileChangeSchema = z.object({
     .strict(),
 });
 
+export const verifyOtpDeleteAccountSchema = z.object({
+  body: z
+    .object({
+      otp: z.string({ message: 'OTP is required' }).length(6, 'OTP must be exactly 6 characters'),
+    })
+    .strict(),
+});
+
 // ==========================================
 // LOGIN WITH PASSWORD SCHEMA
 // ==========================================

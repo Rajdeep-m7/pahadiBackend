@@ -31,7 +31,7 @@ export const getHomeStorefront = async (req: Request, res: Response, next: NextF
         isPublished: true,
       })
         .select(
-          'title coverImage displayPrice displayMrp displayDiscount defaultVariantId default_slug brandId categoryId isActive isPublished'
+          'title coverImage displayPrice displayMrp displayDiscount defaultVariantId default_slug brandId categoryId isActive isPublished rating numReviews'
         )
         .populate('brandId', 'name')
         .populate('categoryId', 'name')
@@ -55,7 +55,7 @@ export const getHomeStorefront = async (req: Request, res: Response, next: NextF
       isPublished: true,
     })
       .select(
-        'title coverImage displayPrice displayMrp displayDiscount defaultVariantId default_slug brandId categoryId isActive isPublished'
+        'title coverImage displayPrice displayMrp displayDiscount defaultVariantId default_slug brandId categoryId isActive isPublished rating numReviews'
       )
       .populate('brandId', 'name')
       .populate('categoryId', 'name')

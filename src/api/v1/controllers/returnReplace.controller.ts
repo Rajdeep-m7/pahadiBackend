@@ -45,6 +45,30 @@ export const createReturnRequest = async (req: AuthRequest, res: Response, next:
       throw new Error(`Item is already in status: ${targetItem.itemStatus}`);
     }
 
+    // --- ENFORCE RETURN WINDOW ---
+    const deliveredEntry = order.statusHistory.find((h) => h.status === 'delivered');
+    const deliveredAt = deliveredEntry ? deliveredEntry.timestamp : (order as any).updatedAt;
+    
+    const windowDays = targetItem.snapshot?.returnWindowDays || 7;
+    const expiryDate = new Date(deliveredAt);
+    expiryDate.setDate(expiryDate.getDate() + windowDays);
+
+    if (new Date() > expiryDate) {
+      throw new Error(`The return window for this item has expired (${windowDays} days from delivery).`);
+    }
+
+    // --- ENFORCE POLICY TYPE ---
+    const policyType = targetItem.snapshot?.returnPolicyType || 'BOTH';
+    if (policyType === 'NONE') {
+      throw new Error('This item is not eligible for return or replacement.');
+    }
+    if (type === 'return' && policyType === 'REPLACE') {
+      throw new Error('This item is only eligible for replacement, not return.');
+    }
+    if (type === 'replace' && policyType === 'RETURN') {
+      throw new Error('This item is only eligible for return, not replacement.');
+    }
+
     // 3. Create the Return Request
     const returnReq = await ReturnReplace.create(
       [
@@ -293,7 +317,7 @@ export const resolveReturn = async (req: AuthRequest, res: Response, next: NextF
           key_id: env.RAZORPAY_KEY_ID,
           key_secret: env.RAZORPAY_KEY_SECRET,
         });
-        const refundAmount = targetItem.subtotal; // Refund only the item amount
+        const refundAmount = targetItem.itemTotal; // Refund the total item amount (price - coupon + tax)
 
         if (!transaction.gatewayPaymentId) {
           throw new Error('Gateway Payment ID missing for Razorpay refund');
@@ -311,7 +335,7 @@ export const resolveReturn = async (req: AuthRequest, res: Response, next: NextF
 
       returnReq.refundMethod = refundMethod;
       returnReq.refundStatus = 'processed';
-      returnReq.refundAmount = targetItem.subtotal;
+      returnReq.refundAmount = targetItem.itemTotal;
       targetItem.itemStatus = 'returned';
 
       // Put the item back into inventory!

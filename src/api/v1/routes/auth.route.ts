@@ -4,6 +4,8 @@ import {
   sendOtpMobileChange,
   verifyOtpLogin,
   verifyOtpMobileChange,
+  sendOtpDeleteAccount,
+  verifyOtpDeleteAccount,
   loginWithPassword,
   refreshToken,
   logout,
@@ -19,6 +21,7 @@ import {
   sendOtpMobileChangeSchema,
   verifyOtpLoginSchema,
   verifyOtpMobileChangeSchema,
+  verifyOtpDeleteAccountSchema,
   loginWithPasswordSchema,
   refreshTokenSchema,
   logoutSchema,
@@ -59,6 +62,14 @@ router.post(
   '/mobile-change/verify',
   validateRequest(verifyOtpMobileChangeSchema),
   verifyOtpMobileChange
+);
+
+// Account Deletion Flow
+router.post('/delete-account/send-otp', sendOtpDeleteAccount);
+router.post(
+  '/delete-account/verify',
+  validateRequest(verifyOtpDeleteAccountSchema),
+  verifyOtpDeleteAccount
 );
 
 // Session Management

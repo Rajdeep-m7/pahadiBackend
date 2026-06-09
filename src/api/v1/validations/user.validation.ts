@@ -111,3 +111,12 @@ export const toggleUserStatusSchema = userIdParamSchema;
 // DELETE USER SCHEMA
 // ==========================================
 export const deleteUserSchema = userIdParamSchema;
+
+// ==========================================
+// UPDATE PUSH TOKEN SCHEMA
+// ==========================================
+export const updatePushTokenSchema = z.object({
+  body: z.object({
+    pushToken: z.string({ message: 'Push token is required' }).min(1, 'Push token cannot be empty'),
+  }),
+});

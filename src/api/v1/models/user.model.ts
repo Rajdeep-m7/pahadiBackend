@@ -31,6 +31,7 @@ const UserSchema = new Schema<IUserDocument>(
     },
     isActive: { type: Boolean, default: true },
     tokensRevokedAt: { type: Date },
+    pushToken: { type: String },
   },
   { timestamps: true }
 );

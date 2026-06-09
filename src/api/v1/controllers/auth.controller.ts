@@ -219,6 +219,77 @@ export const verifyOtpMobileChange = async (req: AuthRequest, res: Response, nex
 };
 
 // ==========================================
+// SEND OTP: DELETE ACCOUNT
+// ==========================================
+export const sendOtpDeleteAccount = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user) throw new Error('Not authenticated');
+    const phone = req.user.phone;
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await Otp.create({
+      phone,
+      otp,
+      type: 'account_deletion',
+    });
+
+    try {
+      await waBridgeService.sendOtpTemplate(phone, otp);
+      console.log(`[WABridge] Account Deletion OTP ${otp} sent to ${phone}`);
+    } catch (waError) {
+      console.warn(`[WABridge] Failed for ${phone}.\n${waError}`);
+      return httpError(next, new Error('Sorry, We cant send the otp at this moment.'), req, 500);
+    }
+
+    return httpResponse(req, res, 200, 'OTP sent successfully');
+  } catch (error: unknown) {
+    return httpError(next, error, req, 500);
+  }
+};
+
+// ==========================================
+// VERIFY OTP: DELETE ACCOUNT
+// ==========================================
+export const verifyOtpDeleteAccount = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { otp } = req.body;
+    if (!req.user) throw new Error('Not authenticated');
+    const phone = req.user.phone;
+
+    const otpRecord = await Otp.findOne({ phone, type: 'account_deletion' }).sort({
+      createdAt: -1,
+    });
+    if (!otpRecord) throw new Error('OTP not found or expired');
+
+    const isValid = await otpRecord.compareOtp(otp);
+    if (!isValid) throw new Error('Invalid OTP');
+
+    await Otp.findByIdAndDelete(otpRecord._id).session(session);
+
+    // Perform hard delete of the user
+    await User.findByIdAndDelete(req.user._id).session(session);
+
+    // Delete all refresh tokens for this user
+    await RefreshToken.deleteMany({ userId: req.user._id }).session(session);
+
+    await session.commitTransaction();
+
+    return httpResponse(req, res, 200, 'Account deleted successfully');
+  } catch (error: unknown) {
+    await session.abortTransaction();
+    return httpError(next, error, req, 400);
+  } finally {
+    session.endSession();
+  }
+};
+
+// ==========================================
 // LOGIN WITH PASSWORD (Staff/Admin Only)
 // ==========================================
 export const loginWithPassword = async (req: AuthRequest, res: Response, next: NextFunction) => {
