@@ -817,7 +817,7 @@ export const refundOrder = async (req: AuthRequest, res: Response, next: NextFun
     const totalAlreadyRefunded = order.items.reduce((sum, item) => sum + (item.refundAmount || 0), 0);
     const remainingToRefund = Math.max(0, transaction.amount - totalAlreadyRefunded);
 
-    if (remainingToRefund === 0 && transaction.paymentStatus !== 'refunded') {
+    if (remainingToRefund === 0) {
        // Logic-only update: mark all as refunded since balance is 0
        transaction.paymentStatus = 'refunded';
        transaction.refundInitiatedAt = new Date();
