@@ -527,7 +527,10 @@ export const searchVariants = async (req: Request, res: Response, next: NextFunc
       {
         $match: {
           isActive: true,
-          $text: { $search: searchTerm },
+          $or: [
+            { title: { $regex: searchTerm, $options: 'i' } },
+            { sku: { $regex: searchTerm, $options: 'i' } }
+          ]
         },
       },
 

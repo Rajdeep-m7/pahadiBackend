@@ -59,6 +59,66 @@ class PushNotificationService {
       console.error(`[PushNotification] Error sending push notification to user ${userId}:`, error);
     }
   }
+
+  /**
+   * Sends push notifications to multiple tokens in bulk.
+   * Expo recommends sending in chunks of 100.
+   */
+  async sendBulkPushNotifications(
+    tokens: string[],
+    title: string,
+    body: string,
+    data?: Record<string, any>
+  ): Promise<void> {
+    try {
+      const validTokens = tokens.filter(
+        (t) => t && (t.startsWith('ExponentPushToken') || t.startsWith('ExpoPushToken'))
+      );
+
+      if (validTokens.length === 0) {
+        console.log('[PushNotification] No valid push tokens provided for bulk send.');
+        return;
+      }
+
+      // Chunk tokens (Expo recommends max 100 per request)
+      const chunkSize = 100;
+      const chunks = [];
+      for (let i = 0; i < validTokens.length; i += chunkSize) {
+        chunks.push(validTokens.slice(i, i + chunkSize));
+      }
+
+      console.log(`[PushNotification] Sending bulk push to ${validTokens.length} tokens in ${chunks.length} chunks...`);
+
+      for (const chunk of chunks) {
+        const messages = chunk.map((token) => ({
+          to: token,
+          sound: 'default',
+          title,
+          body,
+          data: data || {},
+        }));
+
+        const response = await fetch('https://exp.host/--/api/v2/push/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Accept-encoding': 'gzip, deflate',
+          },
+          body: JSON.stringify(messages),
+        });
+
+        if (!response.ok) {
+          const errBody = await response.json().catch(() => null);
+          console.error(`[PushNotification] Bulk Expo API Error: ${response.status} - ${JSON.stringify(errBody)}`);
+        }
+      }
+
+      console.log('[PushNotification] Bulk push notifications processing complete.');
+    } catch (error) {
+      console.error('[PushNotification] Error in bulk push notification service:', error);
+    }
+  }
 }
 
 export const pushNotificationService = new PushNotificationService();

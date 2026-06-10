@@ -61,9 +61,24 @@ const OrderItemSchema = new Schema<IOrderItem>(
     itemTotal: { type: Number, required: true },
     itemStatus: {
       type: String,
-      enum: ['active', 'return_requested', 'returned', 'replacement_requested', 'replaced'],
+      enum: [
+        'active',
+        'return_requested',
+        'returned',
+        'replacement_requested',
+        'replaced',
+        'rejected_by_admin',
+        'cancelled',
+      ],
       default: 'active',
     },
+    refundStatus: {
+      type: String,
+      enum: ['pending', 'processed', 'failed', 'not_applicable'],
+      default: 'pending',
+    },
+    refundId: { type: String },
+    refundAmount: { type: Number },
   },
   { _id: true }
 );

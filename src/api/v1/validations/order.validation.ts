@@ -64,7 +64,7 @@ export const cancelOrderSchema = z.object({
       .regex(objectIdRegex, 'Invalid Order ID format'),
   }),
   body: z.object({
-    reason: z.string().min(5, 'Cancellation reason must be at least 5 characters').optional(),
+    reason: z.string().optional(),
   }),
 });
 
@@ -78,7 +78,24 @@ export const cancelOrderAdminSchema = z.object({
       .regex(objectIdRegex, 'Invalid Order ID format'),
   }),
   body: z.object({
-    reason: z.string().min(5, 'Cancellation reason must be at least 5 characters').optional(),
+    reason: z.string().optional(),
+  }),
+});
+
+// ==========================================
+// CANCEL ORDER ITEM SCHEMA (Customer & Admin)
+// ==========================================
+export const cancelOrderItemSchema = z.object({
+  params: z.object({
+    id: z
+      .string({ message: 'Order ID is required' })
+      .regex(objectIdRegex, 'Invalid Order ID format'),
+    itemId: z
+      .string({ message: 'Item ID is required' })
+      .regex(objectIdRegex, 'Invalid Item ID format'),
+  }),
+  body: z.object({
+    reason: z.string().optional(),
   }),
 });
 
@@ -92,7 +109,7 @@ export const refundOrderSchema = z.object({
       .regex(objectIdRegex, 'Invalid Order ID format'),
   }),
   body: z.object({
-    reason: z.string().min(5, 'Refund reason must be at least 5 characters').optional(),
+    reason: z.string().optional(),
   }),
 });
 

@@ -28,7 +28,10 @@ export interface IOrderItem {
   }[];
   totalTax: number; // sum of all taxDetail amounts
   itemTotal: number; // effectiveSubtotal + totalTax (final line total)
-  itemStatus: 'active' | 'return_requested' | 'returned' | 'replacement_requested' | 'replaced' | 'rejected_by_admin';
+  itemStatus: 'active' | 'return_requested' | 'returned' | 'replacement_requested' | 'replaced' | 'rejected_by_admin' | 'cancelled';
+  refundStatus?: 'pending' | 'processed' | 'failed' | 'not_applicable';
+  refundId?: string;
+  refundAmount?: number;
 }
 
 export interface IOrderStatusHistory {

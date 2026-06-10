@@ -460,11 +460,22 @@ export const getOrderById = async (req: AuthRequest, res: Response, next: NextFu
         attributes,
         title: item.snapshot?.title || variant?.title || product?.title || 'Unknown Product',
         coverImage: item.snapshot?.coverImage || variant?.coverImage?.url || product?.coverImage?.url || null,
+        refundStatus: item.refundStatus,
+        refundId: item.refundId,
+        refundAmount: item.refundAmount,
       };
     });
 
+    const transaction = await Transaction.findOne({ orderId: order._id }).lean();
+
     return httpResponse(req, res, 200, 'Order fetched successfully', { 
-      order: { ...order, orderId: order._id, items: enrichedItems } 
+      order: { 
+        ...order, 
+        orderId: order._id, 
+        items: enrichedItems,
+        paymentMethod: transaction?.paymentMethod || 'Online',
+        paymentStatus: transaction?.paymentStatus || 'pending'
+      } 
     });
   } catch (error: unknown) {
     return httpError(next, error, req, 404);
@@ -480,6 +491,92 @@ export const cancelOrder = async (req: AuthRequest, res: Response, next: NextFun
 // For refund, use the dedicated /refund endpoint
 export const cancelOrderAdmin = async (req: AuthRequest, res: Response, next: NextFunction) => {
   return cancelOrderImpl(req, res, next, { userIdFilter: false });
+};
+
+// CANCEL ORDER ITEM (Customer)
+export const cancelOrderItem = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  return cancelOrderItemImpl(req, res, next, { userIdFilter: true });
+};
+
+// CANCEL ORDER ITEM (Admin)
+export const cancelOrderItemAdmin = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  return cancelOrderItemImpl(req, res, next, { userIdFilter: false });
+};
+
+// REFUND ORDER ITEM (Admin)
+export const refundOrderItemAdmin = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { id, itemId } = req.params;
+    const order = await Order.findById(id).session(session);
+    if (!order) throw new Error('Order not found');
+
+    const item = order.items.find(
+      (i) => i._id?.toString() === itemId || i.variantId.toString() === itemId
+    );
+
+    if (!item) throw new Error('Item not found in order');
+
+    if (item.itemStatus !== 'cancelled' && item.itemStatus !== 'returned') {
+      throw new Error(`Only cancelled or returned items can be refunded. Current status: ${item.itemStatus}`);
+    }
+
+    if (item.refundStatus === 'processed') {
+      throw new Error('This item has already been refunded.');
+    }
+
+    const transaction = await Transaction.findOne({ orderId: order._id }).session(session);
+    if (!transaction || transaction.paymentStatus !== 'success') {
+      throw new Error('No successful payment transaction found for this order.');
+    }
+
+    if (!transaction.gatewayPaymentId) {
+      throw new Error('Gateway Payment ID missing for Razorpay refund');
+    }
+
+    // Trigger Razorpay Partial Refund
+    const rzp = new Razorpay({
+      key_id: env.RAZORPAY_KEY_ID!,
+      key_secret: env.RAZORPAY_KEY_SECRET,
+    });
+
+    try {
+      const refundRes = await rzp.payments.refund(transaction.gatewayPaymentId, {
+        amount: Math.round(item.itemTotal * 100),
+        notes: { 
+          orderId: order._id.toString(), 
+          itemId: item._id?.toString() || item.variantId.toString(),
+          reason: (req.body as { reason?: string }).reason || 'Item-level refund'
+        },
+      });
+
+      item.refundStatus = 'processed';
+      item.refundId = refundRes.id;
+      item.refundAmount = item.itemTotal;
+
+      order.statusHistory.push({
+        status: 'Item Refunded',
+        timestamp: new Date(),
+        comment: `Refund of ${item.itemTotal} issued for item "${item.snapshot.title}".`,
+      });
+
+      await order.save({ session });
+      await session.commitTransaction();
+
+      return httpResponse(req, res, 200, 'Item refund issued successfully', { order });
+    } catch (rzpErr: any) {
+      console.error('[RefundOrderItem] Razorpay Error:', rzpErr);
+      item.refundStatus = 'failed';
+      await order.save({ session });
+      throw new Error(rzpErr.message || 'Razorpay refund failed');
+    }
+  } catch (error: unknown) {
+    await session.abortTransaction();
+    return httpError(next, error, req, 400);
+  } finally {
+    session.endSession();
+  }
 };
 
 // Shared cancel implementation — userIdFilter determines ownership check
@@ -609,6 +706,83 @@ const cancelOrderImpl = async (
   }
 };
 
+const cancelOrderItemImpl = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+  opts: { userIdFilter: boolean }
+) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { id, itemId } = req.params;
+    const query: Record<string, unknown> = { _id: id };
+    if (opts.userIdFilter) {
+      query.userId = req.user!._id;
+      query.orderStatus = { $in: ['pending_payment', 'processing'] };
+    } else {
+      query.orderStatus = { $in: ['pending_payment', 'processing', 'shipped'] };
+    }
+
+    const order = await Order.findOne(query).session(session);
+    if (!order) {
+      throw new Error('Order not found or cannot be modified in its current state.');
+    }
+
+    const itemIndex = order.items.findIndex(
+      (item) => item._id?.toString() === itemId || item.variantId.toString() === itemId
+    );
+
+    if (itemIndex === -1) {
+      throw new Error('Item not found in order.');
+    }
+
+    const item = order.items[itemIndex];
+
+    if (item.itemStatus !== 'active') {
+      throw new Error(`Item cannot be cancelled. Current status: ${item.itemStatus}`);
+    }
+
+    // 1. Update item status
+    item.itemStatus = 'cancelled';
+
+    // 2. Recalculate order totals
+    order.subtotal -= item.subtotal;
+    order.couponDiscount -= item.discountApportioned;
+    order.itemTax -= item.totalTax;
+    order.totalAmount -= item.itemTotal;
+
+    // 3. Restock variant
+    await restockItems([{ variantId: item.variantId, quantity: item.quantity }], session);
+
+    // 4. Update order status if all items are cancelled/returned/rejected
+    const allItemsInactive = order.items.every(
+      (i) => i.itemStatus !== 'active' && i.itemStatus !== 'return_requested' && i.itemStatus !== 'replacement_requested'
+    );
+
+    if (allItemsInactive) {
+      order.orderStatus = 'cancelled';
+    }
+
+    // 5. Add status history
+    order.statusHistory.push({
+      status: opts.userIdFilter ? 'Item Cancelled by Customer' : 'Item Cancelled by Admin',
+      timestamp: new Date(),
+      comment: `Item "${item.snapshot.title}" cancelled. ${(req.body as { reason?: string }).reason || ''}`,
+    });
+
+    await order.save({ session });
+
+    await session.commitTransaction();
+    return httpResponse(req, res, 200, 'Item cancelled successfully', { order });
+  } catch (error: unknown) {
+    await session.abortTransaction();
+    return httpError(next, error, req, 400);
+  } finally {
+    session.endSession();
+  }
+};
+
 // MANUAL REFUND (Admin)
 export const refundOrder = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const session = await mongoose.startSession();
@@ -639,15 +813,55 @@ export const refundOrder = async (req: AuthRequest, res: Response, next: NextFun
       throw new Error('Payment has already been refunded.');
     }
 
+    // Calculate remaining balance to refund
+    const totalAlreadyRefunded = order.items.reduce((sum, item) => sum + (item.refundAmount || 0), 0);
+    const remainingToRefund = Math.max(0, transaction.amount - totalAlreadyRefunded);
+
+    if (remainingToRefund === 0 && transaction.paymentStatus !== 'refunded') {
+       // Logic-only update: mark all as refunded since balance is 0
+       transaction.paymentStatus = 'refunded';
+       transaction.refundInitiatedAt = new Date();
+       transaction.refundProcessedBy = req.user!._id;
+       await transaction.save({ session });
+
+       // Mark all items as processed
+       order.items.forEach(item => {
+         if (item.itemStatus === 'cancelled' || item.itemStatus === 'returned') {
+           item.refundStatus = 'processed';
+         }
+       });
+
+       await order.save({ session });
+       await session.commitTransaction();
+       return httpResponse(req, res, 200, 'All items already partially refunded. Order marked as fully refunded.', { order });
+    }
+
     if (transaction.paymentStatus === 'refund_failed') {
       // Retry refund
       try {
-        const refundResult = (await triggerRazorpayRefund(transaction)) as { id?: string };
+        const rzp = new Razorpay({
+          key_id: env.RAZORPAY_KEY_ID!,
+          key_secret: env.RAZORPAY_KEY_SECRET,
+        });
+
+        const refundResult = await rzp.payments.refund(transaction.gatewayPaymentId, {
+          amount: Math.round(remainingToRefund * 100),
+        });
+
         transaction.paymentStatus = 'refunded';
-        transaction.refundId = refundResult?.id;
+        transaction.refundId = refundResult.id;
         transaction.refundInitiatedAt = new Date();
         transaction.refundProcessedBy = req.user!._id;
         await transaction.save({ session });
+
+        // Mark all cancelled/returned items as processed
+        order.items.forEach(item => {
+          if (item.itemStatus === 'cancelled' || item.itemStatus === 'returned') {
+            item.refundStatus = 'processed';
+          }
+        });
+
+        await order.save({ session });
 
         await Order.findByIdAndUpdate(
           order._id,
@@ -656,7 +870,7 @@ export const refundOrder = async (req: AuthRequest, res: Response, next: NextFun
               statusHistory: {
                 status: 'Refund Issued (Retry)',
                 timestamp: new Date(),
-                comment: (req.body as { reason?: string }).reason || '',
+                comment: `Refund of ${remainingToRefund} issued. ${(req.body as { reason?: string }).reason || ''}`,
               },
             },
           },
@@ -666,7 +880,7 @@ export const refundOrder = async (req: AuthRequest, res: Response, next: NextFun
         await session.commitTransaction();
         return httpResponse(req, res, 200, 'Refund issued successfully', {
           refundId: transaction.refundId || null,
-          amount: transaction.amount,
+          amount: remainingToRefund,
         });
       } catch (refundErr) {
         console.error('[OrderController] Refund retry failed:', refundErr);
@@ -679,12 +893,29 @@ export const refundOrder = async (req: AuthRequest, res: Response, next: NextFun
     // First-time refund
     if (transaction.paymentStatus === 'success') {
       try {
-        const refundResult = (await triggerRazorpayRefund(transaction)) as { id?: string };
+        const rzp = new Razorpay({
+          key_id: env.RAZORPAY_KEY_ID!,
+          key_secret: env.RAZORPAY_KEY_SECRET,
+        });
+
+        const refundResult = await rzp.payments.refund(transaction.gatewayPaymentId, {
+          amount: Math.round(remainingToRefund * 100),
+        });
+
         transaction.paymentStatus = 'refunded';
-        transaction.refundId = refundResult?.id;
+        transaction.refundId = refundResult.id;
         transaction.refundInitiatedAt = new Date();
         transaction.refundProcessedBy = req.user!._id;
         await transaction.save({ session });
+
+        // Mark all cancelled/returned items as processed
+        order.items.forEach(item => {
+          if (item.itemStatus === 'cancelled' || item.itemStatus === 'returned') {
+            item.refundStatus = 'processed';
+          }
+        });
+
+        await order.save({ session });
 
         await Order.findByIdAndUpdate(
           order._id,
@@ -693,7 +924,7 @@ export const refundOrder = async (req: AuthRequest, res: Response, next: NextFun
               statusHistory: {
                 status: 'Refund Issued',
                 timestamp: new Date(),
-                comment: (req.body as { reason?: string }).reason || '',
+                comment: `Refund of ${remainingToRefund} issued. ${(req.body as { reason?: string }).reason || ''}`,
               },
             },
           },
@@ -703,7 +934,7 @@ export const refundOrder = async (req: AuthRequest, res: Response, next: NextFun
         await session.commitTransaction();
         return httpResponse(req, res, 200, 'Refund issued successfully', {
           refundId: transaction.refundId || null,
-          amount: transaction.amount,
+          amount: remainingToRefund,
         });
       } catch (refundErr) {
         console.error('[OrderController] Refund failed:', refundErr);
@@ -834,6 +1065,7 @@ export const getAllOrdersAdmin = async (req: AuthRequest, res: Response, next: N
         }
 
         return {
+          _id: item._id,
           title: item.snapshot?.title || variant?.title || 'Unknown Product',
           sku: item.snapshot?.sku || variant?.sku || 'N/A',
           coverImage: item.snapshot?.coverImage || variant?.coverImage?.url || null,
@@ -846,6 +1078,9 @@ export const getAllOrdersAdmin = async (req: AuthRequest, res: Response, next: N
           totalTax: item.totalTax,
           attributes: attributesObj,
           itemStatus: item.itemStatus,
+          refundStatus: item.refundStatus,
+          refundId: item.refundId,
+          refundAmount: item.refundAmount,
         };
       });
 
@@ -868,6 +1103,9 @@ export const getAllOrdersAdmin = async (req: AuthRequest, res: Response, next: N
         orderStatusRaw: order.orderStatus,
         paymentMethod: transaction?.paymentMethod || 'N/A',
         paymentStatus: transaction?.paymentStatus || 'N/A',
+        paidAmount: transaction?.amount || 0,
+        refundId: transaction?.refundId || null,
+        remainingPaidAmount: Math.max(0, (transaction?.amount || 0) - order.items.reduce((sum, item) => sum + (item.refundAmount || 0), 0)),
         items: enrichedItems,
         isConfirmed: order.isConfirmed,
         shippingAddress: {

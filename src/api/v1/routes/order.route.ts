@@ -5,7 +5,10 @@ import {
   getOrderById,
   cancelOrder,
   cancelOrderAdmin,
+  cancelOrderItem,
+  cancelOrderItemAdmin,
   refundOrder,
+  refundOrderItemAdmin,
   getAllOrdersAdmin,
   triggerShipRocketDispatch,
   updateOrderStatusAdmin,
@@ -20,6 +23,7 @@ import {
   getOrderByIdSchema,
   cancelOrderSchema,
   cancelOrderAdminSchema,
+  cancelOrderItemSchema,
   refundOrderSchema,
   getAllOrdersAdminSchema,
   triggerDispatchSchema,
@@ -39,6 +43,7 @@ router.post('/', validateRequest(createOrderSchema), createOrder);
 router.get('/me', validateRequest(getMyOrdersSchema), getMyOrders);
 router.get('/me/:id', validateRequest(getOrderByIdSchema), getOrderById);
 router.patch('/me/:id/cancel', validateRequest(cancelOrderSchema), cancelOrder);
+router.patch('/me/:id/cancel-item/:itemId', validateRequest(cancelOrderItemSchema), cancelOrderItem);
 
 // ==========================================
 // ADMIN / STAFF ROUTES
@@ -47,7 +52,9 @@ router.use(restrictTo('admin', 'staff'));
 
 router.get('/', validateRequest(getAllOrdersAdminSchema), getAllOrdersAdmin);
 router.patch('/:id/cancel/admin', validateRequest(cancelOrderAdminSchema), cancelOrderAdmin);
+router.patch('/:id/cancel-item/:itemId/admin', validateRequest(cancelOrderItemSchema), cancelOrderItemAdmin);
 router.patch('/:id/refund', validateRequest(refundOrderSchema), refundOrder);
+router.patch('/:id/refund-item/:itemId', validateRequest(cancelOrderItemSchema), refundOrderItemAdmin);
 router.patch('/:id/dispatch', validateRequest(triggerDispatchSchema), triggerShipRocketDispatch);
 router.patch('/:id/status', validateRequest(updateOrderStatusAdminSchema), updateOrderStatusAdmin);
 router.patch('/:id/confirm-partial', validateRequest(confirmPartialOrderSchema), confirmPartialOrder);

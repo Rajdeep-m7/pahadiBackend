@@ -33,6 +33,7 @@ import homeRoutes from '@/api/v1/routes/home.route';
 import couponRoutes from '@/api/v1/routes/coupon.route';
 import reviewRoutes from '@/api/v1/routes/review.route';
 import storefrontRoutes from '@/api/v1/routes/storefront.route';
+import notificationRoutes from '@/api/v1/routes/notification.route';
 
 const app = express();
 
@@ -97,6 +98,7 @@ app.use('/api/v1/home', homeRoutes);
 app.use('/api/v1/coupons', couponRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
 app.use('/api/v1/storefront', storefrontRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
 /*
 
 TODO: Reviews, coupons
