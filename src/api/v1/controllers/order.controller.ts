@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import Razorpay from 'razorpay';
 import { Order } from '@/api/v1/models/order.model';
+import { Counter } from '@/api/v1/models/counter.model';
 import { Product } from '@/api/v1/models/product.model';
 import { WarehouseLocation } from '@/api/v1/models/warehouse.model';
 import { User } from '@/api/v1/models/user.model';
@@ -309,11 +310,21 @@ export const createOrder = async (req: AuthRequest, res: Response, next: NextFun
     const shippingCost = 0; // subtotal > 1000 ? 0 : 50;
     const totalAmount = Math.round((subtotal - couponDiscount + itemTax + shippingCost) * 100) / 100;
 
-    // 6. Create Order with payment window (10 minutes)
+    // 6. Create Order with sequential orderId and payment window (10 minutes)
     const PAYMENT_WINDOW_MS = 10 * 60 * 1000;
     const paymentExpiresAt = new Date(Date.now() + PAYMENT_WINDOW_MS);
 
+    // Atomically increment the orderId counter
+    const counter = await Counter.findOneAndUpdate(
+      { _id: 'orderId' },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true, session }
+    );
+
+    const formattedOrderId = `PC${String(counter.seq).padStart(4, '0')}`;
+
     const newOrder = new Order({
+      orderId: formattedOrderId,
       userId: req.user!._id,
       items: orderItems,
       shippingAddress,
@@ -328,7 +339,7 @@ export const createOrder = async (req: AuthRequest, res: Response, next: NextFun
         {
           status: 'Order Created',
           timestamp: new Date(),
-          comment: 'Waiting for payment confirmation.',
+          comment: `Order #${formattedOrderId} waiting for payment confirmation.`,
         },
       ],
       // TTL: MongoDB auto-deletes this order if paymentExpiresAt passes
@@ -345,7 +356,10 @@ export const createOrder = async (req: AuthRequest, res: Response, next: NextFun
 
     await session.commitTransaction();
 
-    return httpResponse(req, res, 201, 'Order created successfully', { orderId: newOrder._id });
+    return httpResponse(req, res, 201, 'Order created successfully', { 
+      orderId: newOrder._id,
+      displayOrderId: formattedOrderId 
+    });
   } catch (error: unknown) {
     await session.abortTransaction();
     return httpError(next, error, req, 400);
@@ -468,11 +482,33 @@ export const getOrderById = async (req: AuthRequest, res: Response, next: NextFu
 
     const transaction = await Transaction.findOne({ orderId: order._id }).lean();
 
+    // 4. Enrich shipments with real-time tracking from Shiprocket
+    let enrichedShipments = order.shipments || [];
+    if (order.shipments && order.shipments.length > 0) {
+      enrichedShipments = await Promise.all(order.shipments.map(async (s: any) => {
+        if (!s.trackingNumber) return s;
+        try {
+          const tracking = await shiprocketService.trackShipment(s.trackingNumber);
+          return {
+            ...s,
+            trackUrl: tracking.trackUrl,
+            currentStatus: tracking.currentStatus,
+            estimatedDelivery: tracking.estimatedDelivery,
+            timeline: tracking.timeline,
+          };
+        } catch (e) {
+          console.error(`[OrderById] Tracking failed for ${s.trackingNumber}:`, e);
+          return s;
+        }
+      }));
+    }
+
     return httpResponse(req, res, 200, 'Order fetched successfully', { 
       order: { 
         ...order, 
         orderId: order._id, 
         items: enrichedItems,
+        shipments: enrichedShipments,
         paymentMethod: transaction?.paymentMethod || 'Online',
         paymentStatus: transaction?.paymentStatus || 'pending'
       } 

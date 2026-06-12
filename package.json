@@ -12,17 +12,16 @@
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix"
   },
-
   "keywords": [],
   "author": "",
   "license": "ISC",
-
   "dependencies": {
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/express-fileupload": "^1.5.1",
     "@types/node": "^25.7.0",
+    "agenda": "^5.0.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",
     "cookie-parser": "^1.4.7",

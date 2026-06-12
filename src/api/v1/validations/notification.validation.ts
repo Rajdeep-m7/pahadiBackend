@@ -5,5 +5,6 @@ export const sendNotificationSchema = z.object({
     title: z.string().min(1, 'Title is required'),
     body: z.string().min(1, 'Body is required'),
     target: z.enum(['all', 'cart', 'wishlist']),
+    scheduledAt: z.string().datetime().optional().or(z.string().optional()),
   }),
 });

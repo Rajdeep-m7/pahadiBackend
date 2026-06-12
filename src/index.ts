@@ -14,6 +14,7 @@ import { httpError } from '@/api/v1/utils/httpError';
 import { globalErrorHandler } from '@/api/v1/middlewares/globalErrorHandler.middleware';
 import httpResponse from '@/api/v1/utils/httpResponse';
 import { AuthRequest } from '@/api/v1/interfaces/auth.interface';
+import agenda, { initAgenda } from '@/config/agenda';
 
 import authRoutes from '@/api/v1/routes/auth.route';
 import userRoutes from '@/api/v1/routes/user.route';
@@ -99,11 +100,6 @@ app.use('/api/v1/coupons', couponRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
 app.use('/api/v1/storefront', storefrontRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
-/*
-
-TODO: Reviews, coupons
-
-*/
 
 app.use((req: Request, _: Response, next: NextFunction) => {
   try {
@@ -116,22 +112,37 @@ app.use((req: Request, _: Response, next: NextFunction) => {
 app.use(globalErrorHandler);
 
 const startServer = async () => {
-  await connectDB();
+  console.log('[•] Starting server initialization...');
+  try {
+    await connectDB();
 
-  // Start order expiry polling service (checks every 10 minutes)
-  startOrderExpiryPolling();
+    console.log('[•] Starting order expiry polling...');
+    startOrderExpiryPolling();
 
-  const server = app.listen(env.PORT, "0.0.0.0", () => {
-    console.log(`[✔] Server running on port ${env.PORT} in ${env.ENV} mode`);
-  });
+    console.log('[•] Starting express server...');
+    const server = app.listen(env.PORT, "0.0.0.0", async () => {
+      console.log(`[✔] Server running on port ${env.PORT} in ${env.ENV} mode`);
+      
+      // Initialize Agenda AFTER the server is up to ensure it doesn't block startup
+      // and has a stable DB connection.
+      try {
+        await initAgenda();
+      } catch (err) {
+        console.error('[✖] Background Agenda initialization failed:', err);
+      }
+    });
 
-  process.on('SIGINT', () => gracefullyShutdown(server, mongoose));
-  process.on('SIGTERM', () => gracefullyShutdown(server, mongoose));
+    process.on('SIGINT', () => gracefullyShutdown(server, mongoose, agenda));
+    process.on('SIGTERM', () => gracefullyShutdown(server, mongoose, agenda));
 
-  process.on('uncaughtException', (error) => {
-    console.error('[✖] Uncaught Exception:', error);
-    gracefullyShutdown(server, mongoose);
-  });
+    process.on('uncaughtException', (error) => {
+      console.error('[✖] Uncaught Exception:', error);
+      gracefullyShutdown(server, mongoose, agenda);
+    });
+  } catch (error) {
+    console.error('[✖] Critical server startup error:', error);
+    process.exit(1);
+  }
 };
 
 startServer();

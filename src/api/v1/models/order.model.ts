@@ -86,6 +86,7 @@ const OrderItemSchema = new Schema<IOrderItem>(
 // --- MAIN SCHEMA ---
 const OrderSchema = new Schema<IOrderDocument>(
   {
+    orderId: { type: String, unique: true },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     items: [OrderItemSchema],
     shippingAddress: { type: ShippingAddressSchema, required: true },
@@ -129,6 +130,7 @@ const OrderSchema = new Schema<IOrderDocument>(
 );
 
 // --- INDEXES ---
+OrderSchema.index({ orderId: 1 }, { unique: true });
 OrderSchema.index({ orderStatus: 1, createdAt: -1 });
 OrderSchema.index({ userId: 1, createdAt: -1 });
 OrderSchema.index({ 'shipments.trackingNumber': 1 });

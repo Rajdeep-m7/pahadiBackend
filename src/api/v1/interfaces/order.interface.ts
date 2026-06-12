@@ -52,6 +52,7 @@ export interface IOrderShipments {
 }
 
 export interface IOrder {
+  orderId?: string; // e.g. PC0001
   userId: mongoose.Types.ObjectId;
   items: IOrderItem[];
   shippingAddress: IShippingAddress;
