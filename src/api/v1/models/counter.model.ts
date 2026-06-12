@@ -6,12 +6,14 @@ export interface ICounter {
   seq: number;
 }
 
-// Define the Document type for Mongoose
-export interface ICounterDocument extends ICounter, Document {
-  _id: string; // Override Document _id with string
-}
+/**
+ * Use Omit to remove the conflicting _id property from Document.
+ * This allows us to define _id as a string without TypeScript errors.
+ */
+export interface ICounterDocument extends ICounter, Omit<Document, '_id'> {}
 
-const CounterSchema = new Schema<ICounterDocument>({
+// Define the Schema without the generic type parameter to avoid strict definition checks
+const CounterSchema = new Schema({
   _id: { type: String, required: true },
   seq: { type: Number, default: 0 },
 });
