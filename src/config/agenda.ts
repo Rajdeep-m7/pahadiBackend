@@ -3,7 +3,11 @@ import mongoose from 'mongoose';
 import env from '@/config/env';
 import { processNotificationJob } from '@/api/v1/controllers/notification.controller';
 
-const agenda = new Agenda();
+const agenda = new Agenda({
+  processEvery: '3 minute',
+  maxConcurrency: 10,
+  defaultConcurrency: 5,
+});
 
 /**
  * Initializes agenda
@@ -12,7 +16,14 @@ export const initAgenda = async () => {
   console.log('[•] Entering initAgenda...');
   try {
     console.log('[•] Connecting Agenda to MongoDB...');
-    agenda.database(env.MONGODB_URI!, 'agendaJobs');
+    
+    if (mongoose.connection.readyState === 1) {
+      // Use existing mongoose connection to save resources
+      agenda.mongo(mongoose.connection.getClient().db() as any, 'agendaJobs');
+    } else {
+      // Fallback if mongoose isn't ready yet
+      agenda.database(env.MONGODB_URI!, 'agendaJobs');
+    }
     
     console.log('[•] Calling agenda.start()...');
     await agenda.start();
