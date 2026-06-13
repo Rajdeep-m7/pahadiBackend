@@ -374,15 +374,15 @@ export const refreshToken = async (req: AuthRequest, res: Response, next: NextFu
 
     const tokenHash = crypto.createHash('sha256').update(tokenToRefresh).digest('hex');
     
-    // GRACE PERIOD: Instead of immediate delete, set to expire in 15 seconds.
-    // This prevents race conditions if multiple requests fire simultaneously during page load.
+    // GRACE PERIOD: Increased to 120 seconds to prevent race conditions 
+    // when multiple concurrent requests trigger refresh simultaneously.
     const existingSession = await RefreshToken.findOneAndUpdate(
       { 
         tokenHash,
         expiresAt: { $gt: new Date() } 
       },
       { 
-        expiresAt: new Date(Date.now() + 15000) 
+        expiresAt: new Date(Date.now() + 120000) 
       }
     ).session(session);
 
