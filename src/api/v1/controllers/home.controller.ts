@@ -34,7 +34,8 @@ export const getHomeStorefront = async (req: Request, res: Response, next: NextF
           'title coverImage displayPrice displayMrp displayDiscount defaultVariantId default_slug brandId categoryId isActive isPublished rating numReviews'
         )
         .populate('brandId', 'name')
-        .populate('categoryId', 'name')
+        .populate('categoryId', 'name taxes parentCategoryId') // Fully populate for tax resolution
+        .populate('defaultVariantId', 'stocks _id') // Populate stock for frontend
         .sort({ createdAt: -1 })
         .limit(5)
         .lean();
@@ -58,7 +59,8 @@ export const getHomeStorefront = async (req: Request, res: Response, next: NextF
         'title coverImage displayPrice displayMrp displayDiscount defaultVariantId default_slug brandId categoryId isActive isPublished rating numReviews'
       )
       .populate('brandId', 'name')
-      .populate('categoryId', 'name')
+      .populate('categoryId', 'name taxes parentCategoryId')
+      .populate('defaultVariantId', 'stocks _id')
       .sort({ createdAt: -1 })
       .limit(10)
       .lean();

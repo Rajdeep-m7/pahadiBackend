@@ -404,7 +404,6 @@ export const getMyOrders = async (req: AuthRequest, res: Response, next: NextFun
 
     const enrichedOrders = orders.map((order) => ({
       ...order,
-      orderId: order._id,
       items: order.items.map((item) => {
         const variant = variantMap.get(item.variantId.toString()) as any;
         const product = variant?.productId as any;
@@ -506,7 +505,6 @@ export const getOrderById = async (req: AuthRequest, res: Response, next: NextFu
     return httpResponse(req, res, 200, 'Order fetched successfully', { 
       order: { 
         ...order, 
-        orderId: order._id, 
         items: enrichedItems,
         shipments: enrichedShipments,
         paymentMethod: transaction?.paymentMethod || 'Online',
@@ -1048,6 +1046,7 @@ export const getAllOrdersAdmin = async (req: AuthRequest, res: Response, next: N
     if (req.query.search) {
       const search = req.query.search as string;
       query.$or = [
+        { orderId: { $regex: search, $options: 'i' } },
         { _id: mongoose.isValidObjectId(search) ? new mongoose.Types.ObjectId(search) : undefined },
         { 'shippingDetails.trackingNumber': { $regex: search, $options: 'i' } },
       ].filter((q) => q !== undefined);

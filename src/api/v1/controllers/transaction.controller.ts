@@ -74,9 +74,6 @@ const finalizeSuccessfulPayment = async (
       // 1. Clear TTL expiry (null = TTL ignores this document)
       order.paymentExpiresAt = null;
 
-      // 2. Decrement stock for all items
-      await decrementStock(order.items, session);
-
       // 3. Update Order status to processing
       order.orderStatus = 'processing';
       order.statusHistory.push({

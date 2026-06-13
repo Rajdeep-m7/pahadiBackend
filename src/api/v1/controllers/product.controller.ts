@@ -21,10 +21,15 @@ import { AuthRequest } from '@/api/v1/interfaces/auth.interface';
  * - Return null if no tax anywhere
  */
 const resolveProductEffectiveTax = async (
-  product: { taxes?: { name: string; slab: number }[]; categoryId?: mongoose.Types.ObjectId }
+  product: { taxes?: { name: string; slab: number }[]; categoryId?: any }
 ): Promise<{ name: string; slab: number }[] | null> => {
   if (product.taxes && product.taxes.length > 0) return product.taxes;
   if (!product.categoryId) return null;
+
+  // If categoryId is already populated as an object
+  if (typeof product.categoryId === 'object' && product.categoryId.name) {
+    return resolveCategoryTax(product.categoryId);
+  }
 
   const category = await Category.findById(product.categoryId).lean();
   if (!category) return null;
@@ -172,7 +177,8 @@ export const getProducts = async (req: AuthRequest, res: Response, next: NextFun
         'title coverImage displayPrice displayMrp displayDiscount defaultVariantId default_slug brandId categoryId isActive isPublished isTaxInclude taxes rating numReviews'
       )
       .populate('brandId', 'name')
-      .populate('categoryId', 'name')
+      .populate('categoryId', 'name parentCategoryId taxes') // Fully populate for tax resolution
+      .populate('defaultVariantId', 'stocks _id') // Populate stock for frontend
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));
@@ -313,7 +319,8 @@ export const getProductByCategorySlug = async (
         'title coverImage displayPrice displayMrp displayDiscount defaultVariantId default_slug brandId categoryId isActive isPublished isTaxInclude taxes rating numReviews'
       )
       .populate('brandId', 'name')
-      .populate('categoryId', 'name slug')
+      .populate('categoryId', 'name slug parentCategoryId taxes') // Fully populate for tax resolution
+      .populate('defaultVariantId', 'stocks _id') // Populate stock for frontend
       .sort(sortOption)
       .skip(skip)
       .limit(Number(limit));
