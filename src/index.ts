@@ -120,7 +120,7 @@ const startServer = async () => {
     startOrderExpiryPolling();
 
     console.log('[•] Starting express server...');
-    const server = app.listen(env.PORT, "0.0.0.0", async () => {
+    const server = app.listen(env.PORT, async () => {
       console.log(`[✔] Server running on port ${env.PORT} in ${env.ENV} mode`);
       
       // Initialize Agenda AFTER the server is up to ensure it doesn't block startup
