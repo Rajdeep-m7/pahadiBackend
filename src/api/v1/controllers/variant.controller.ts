@@ -552,13 +552,27 @@ export const searchVariants = async (req: Request, res: Response, next: NextFunc
 
       {
         $addFields: {
-          textScore: { $meta: 'textScore' },
+          textScore: 0, // Fallback since $regex does not generate a textScore
           defaultBoost: { $cond: [{ $eq: ['$isDefault', true] }, 50, 0] },
+          displayDiscount: {
+            $cond: [
+              { $eq: ['$discount.type', 'percentage'] },
+              '$discount.value',
+              {
+                $cond: [
+                  { $gt: ['$mrp', 0] },
+                  { $multiply: [{ $divide: ['$discount.value', '$mrp'] }, 100] },
+                  0
+                ]
+              }
+            ]
+          }
         },
       },
       {
         $addFields: {
           relevanceScore: { $add: ['$textScore', '$defaultBoost'] },
+          discount: { $round: ['$displayDiscount', 0] }
         },
       },
 
@@ -600,6 +614,9 @@ export const searchVariants = async (req: Request, res: Response, next: NextFunc
           title: 1,
           price: 1,
           mrp: 1,
+          discount: 1,
+          stocks: 1,
+          isActive: 1,
           coverImage: 1,
           attributes: 1,
           productId: 1,
@@ -608,6 +625,7 @@ export const searchVariants = async (req: Request, res: Response, next: NextFunc
           textScore: 1, // Keep this during development to debug your search!
           hasMultipleVariants: 1,
           totalVariants: 1,
+          slug: 1,
         },
       },
     ]);
@@ -615,15 +633,22 @@ export const searchVariants = async (req: Request, res: Response, next: NextFunc
     // 8. POPULATE PRODUCT DATA
     await Variant.populate(searchResults, {
       path: 'productId',
-      select: 'title categoryId brandId default_slug displayPrice displayMrp displayDiscount rating numReviews',
+      select: 'title categoryId brandId default_slug displayPrice displayMrp displayDiscount rating numReviews taxes',
       populate: [
         { path: 'brandId', select: 'name' },
         { path: 'categoryId', select: 'name' },
       ],
     });
 
+    const searchResultsWithTax = await Promise.all(
+      searchResults.map(async (v: any) => {
+        const effectiveTax = await resolveProductEffectiveTax(v.productId);
+        return { ...v, effectiveTax };
+      })
+    );
+
     return httpResponse(req, res, 200, 'Search successful', {
-      results: searchResults,
+      results: searchResultsWithTax,
       count: searchResults.length,
     });
   } catch (error: unknown) {
