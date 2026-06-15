@@ -12,7 +12,7 @@ const TransactionSchema = new Schema<ITransactionDocument>(
     paymentMethod: { type: String, enum: ['razorpay', 'cod', 'manual'], required: true },
     paymentStatus: {
       type: String,
-      enum: ['pending', 'success', 'failed', 'refunded', 'refund_failed'],
+      enum: ['pending', 'success', 'failed', 'refunded', 'refund_failed', 'refund_pending'],
       default: 'pending',
     },
 

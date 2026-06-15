@@ -22,7 +22,7 @@ export const getAllTransactionsAdminSchema = z.object({
   query: z.object({
     page: z.string().optional(),
     limit: z.string().optional(),
-    status: z.enum(['pending', 'success', 'failed', 'refunded']).optional(),
+    status: z.enum(['pending', 'success', 'failed', 'refunded', 'refund_pending']).optional(),
     search: z.string().optional(),
   }),
 });

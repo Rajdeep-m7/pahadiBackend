@@ -688,31 +688,16 @@ const cancelOrderImpl = async (
     }).session(session);
 
     if (opts.userIdFilter && transaction?.paymentStatus === 'success') {
-      try {
-        const refundResult = (await triggerRazorpayRefund(transaction)) as { id?: string };
-        transaction.paymentStatus = 'refunded';
-        transaction.refundId = refundResult?.id;
-        transaction.refundInitiatedAt = new Date();
-        await transaction.save({ session });
-      } catch (refundErr) {
-        console.error('[OrderController] Customer refund failed:', refundErr);
-        transaction.paymentStatus = 'refund_failed';
-        transaction.refundFailureReason = (refundErr as Error).message;
-        await transaction.save({ session });
+      // Mark the transaction as needing a manual refund by an admin
+      transaction.paymentStatus = 'refund_pending';
+      await transaction.save({ session });
 
-        await Order.findByIdAndUpdate(
-          order._id,
-          {
-            $push: {
-              statusHistory: {
-                status: 'Refund Failed — Manual Review Required',
-                timestamp: new Date(),
-              },
-            },
-          },
-          { session }
-        );
-      }
+      order.statusHistory.push({
+        status: 'Refund Pending',
+        timestamp: new Date(),
+        comment: 'Customer cancelled the order. Awaiting manual refund approval by admin.',
+      });
+      await order.save({ session });
     }
 
     if (order) {
@@ -1142,6 +1127,7 @@ export const getAllOrdersAdmin = async (req: AuthRequest, res: Response, next: N
         refundId: transaction?.refundId || null,
         remainingPaidAmount: Math.max(0, (transaction?.amount || 0) - order.items.reduce((sum, item) => sum + (item.refundAmount || 0), 0)),
         items: enrichedItems,
+        statusHistory: order.statusHistory,
         isConfirmed: order.isConfirmed,
         shippingAddress: {
           fullName: shippingAddress?.fullName || 'N/A',

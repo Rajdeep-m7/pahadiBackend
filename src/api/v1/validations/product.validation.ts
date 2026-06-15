@@ -122,7 +122,7 @@ export const getAllProductsSchema = z.object({
   query: z.object({
     // Upgrade: Let Zod handle the math, defaults, and limits!
     page: z.coerce.number().min(1).default(1),
-    limit: z.coerce.number().min(1).max(100).default(10),
+    limit: z.coerce.number().min(1).max(1000).default(10),
 
     brandId: z.string().regex(objectIdRegex, 'Invalid Brand ID').optional(),
     categoryId: z.string().regex(objectIdRegex, 'Invalid Category ID').optional(),
@@ -139,7 +139,7 @@ export const getProductsByCategorySlugSchema = z.object({
   }),
   query: z.object({
     page: z.coerce.number().min(1).default(1),
-    limit: z.coerce.number().min(1).max(100).default(10),
+    limit: z.coerce.number().min(1).max(1000).default(10),
     brandId: z.string().optional(), // Comma-separated: "id1,id2,id3"
     search: z.string().optional(),
     minPrice: z.coerce.number().min(0).optional(),
