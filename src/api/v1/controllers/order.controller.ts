@@ -910,7 +910,7 @@ export const refundOrder = async (req: AuthRequest, res: Response, next: NextFun
     }
 
     // First-time refund
-    if (transaction.paymentStatus === 'success') {
+    if (transaction.paymentStatus === 'success' || transaction.paymentStatus === 'refund_pending') {
       try {
         const rzp = new Razorpay({
           key_id: env.RAZORPAY_KEY_ID!,

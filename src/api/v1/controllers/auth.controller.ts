@@ -149,13 +149,6 @@ export const verifyOtpLogin = async (req: AuthRequest, res: Response, next: Next
 
     await session.commitTransaction();
 
-    // Send Welcome Message if it's a new user
-    if (isNewUser) {
-      waBridgeService.sendWelcomeTemplate(phone).catch((err) => {
-        console.error(`[WABridge] Failed to send welcome message to ${phone}:`, err);
-      });
-    }
-
     const userResponse = user.toObject();
     delete userResponse.passwordHash;
 
