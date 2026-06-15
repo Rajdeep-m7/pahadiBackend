@@ -1,10 +1,32 @@
+import { initializeApp, cert, getApps, App } from 'firebase-admin/app';
+import { getMessaging, Messaging } from 'firebase-admin/messaging';
 import { User } from '@/api/v1/models/user.model';
 import mongoose from 'mongoose';
+import path from 'path';
+import fs from 'fs';
+
+// Initialize Firebase Admin
+const serviceAccountPath = path.resolve(process.cwd(), 'firebase-admin.json');
+let firebaseApp: App;
+
+if (fs.existsSync(serviceAccountPath)) {
+  const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+  const apps = getApps();
+  if (!apps.length) {
+    firebaseApp = initializeApp({
+      credential: cert(serviceAccount),
+    });
+    console.log('[PushNotification] Firebase Admin initialized successfully.');
+  } else {
+    firebaseApp = apps[0];
+  }
+} else {
+  console.error('[PushNotification] firebase-admin.json not found. Notifications will not work.');
+}
 
 class PushNotificationService {
   /**
-   * Sends a push notification to a specific user via Expo Push Notification API.
-   * Resolves silently on error to prevent crashing payment or database transactions.
+   * Sends a push notification to a specific user via Firebase Cloud Messaging.
    */
   async sendPushNotification(
     userId: string | mongoose.Types.ObjectId,
@@ -13,7 +35,6 @@ class PushNotificationService {
     data?: Record<string, any>
   ): Promise<void> {
     try {
-      // 1. Fetch user to retrieve pushToken
       const user = await User.findById(userId).select('pushToken');
       
       if (!user || !user.pushToken) {
@@ -21,48 +42,33 @@ class PushNotificationService {
         return;
       }
 
-      // 2. Validate token structure (Expo tokens start with ExponentPushToken or ExpoPushToken)
-      if (!user.pushToken.startsWith('ExponentPushToken') && !user.pushToken.startsWith('ExpoPushToken')) {
-        console.warn(`[PushNotification] Skipped: User ${userId} has an invalid token format: ${user.pushToken}`);
+      // FCM tokens don't start with Expo/Exponent prefixes
+      if (user.pushToken.startsWith('ExponentPushToken') || user.pushToken.startsWith('ExpoPushToken')) {
+        console.warn(`[PushNotification] Skipped: User ${userId} has an old Expo token. User needs to login to refresh to FCM token.`);
         return;
       }
 
-      // 3. Prepare payload for Expo's API
-      const payload = {
-        to: user.pushToken,
-        sound: 'default',
-        title,
-        body,
+      const message = {
+        notification: { title, body },
         data: data || {},
+        token: user.pushToken,
       };
 
-      console.log(`[PushNotification] Sending push to User ${userId} (${title})...`);
-
-      // 4. Send request to Expo Push service
-      const response = await fetch('https://exp.host/--/api/v2/push/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Accept-encoding': 'gzip, deflate',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errBody = await response.json().catch(() => null);
-        console.error(`[PushNotification] Expo API Error: ${response.status} - ${JSON.stringify(errBody)}`);
+      console.log(`[PushNotification] Sending FCM push to User ${userId}...`);
+      await getMessaging().send(message);
+      console.log(`[PushNotification] Success: Push sent to User ${userId}`);
+    } catch (error: any) {
+      if (error.code === 'messaging/registration-token-not-registered') {
+        console.warn(`[PushNotification] Token for User ${userId} is no longer valid. Removing...`);
+        await User.findByIdAndUpdate(userId, { $unset: { pushToken: 1 } });
       } else {
-        console.log(`[PushNotification] Push sent successfully to User ${userId}.`);
+        console.error(`[PushNotification] Error sending FCM push to User ${userId}:`, error);
       }
-    } catch (error) {
-      console.error(`[PushNotification] Error sending push notification to user ${userId}:`, error);
     }
   }
 
   /**
-   * Sends push notifications to multiple tokens in bulk.
-   * Expo recommends sending in chunks of 100.
+   * Sends push notifications to multiple tokens in bulk via Firebase.
    */
   async sendBulkPushNotifications(
     tokens: string[],
@@ -71,52 +77,36 @@ class PushNotificationService {
     data?: Record<string, any>
   ): Promise<void> {
     try {
+      // Filter out old Expo tokens
       const validTokens = tokens.filter(
-        (t) => t && (t.startsWith('ExponentPushToken') || t.startsWith('ExpoPushToken'))
+        (t) => t && !t.startsWith('ExponentPushToken') && !t.startsWith('ExpoPushToken')
       );
 
       if (validTokens.length === 0) {
-        console.log('[PushNotification] No valid push tokens provided for bulk send.');
+        console.log('[PushNotification] No valid FCM tokens provided for bulk send.');
         return;
       }
 
-      // Chunk tokens (Expo recommends max 100 per request)
-      const chunkSize = 100;
-      const chunks = [];
-      for (let i = 0; i < validTokens.length; i += chunkSize) {
-        chunks.push(validTokens.slice(i, i + chunkSize));
-      }
+      const message = {
+        notification: { title, body },
+        data: data || {},
+        tokens: validTokens,
+      };
 
-      console.log(`[PushNotification] Sending bulk push to ${validTokens.length} tokens in ${chunks.length} chunks...`);
-
-      for (const chunk of chunks) {
-        const messages = chunk.map((token) => ({
-          to: token,
-          sound: 'default',
-          title,
-          body,
-          data: data || {},
-        }));
-
-        const response = await fetch('https://exp.host/--/api/v2/push/send', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Accept-encoding': 'gzip, deflate',
-          },
-          body: JSON.stringify(messages),
+      console.log(`[PushNotification] Sending bulk FCM push to ${validTokens.length} tokens...`);
+      const response = await getMessaging().sendEachForMulticast(message);
+      
+      console.log(`[PushNotification] Bulk Success: ${response.successCount}, Failure: ${response.failureCount}`);
+      
+      if (response.failureCount > 0) {
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            console.error(`[PushNotification] Bulk failure for token ${validTokens[idx]}:`, resp.error);
+          }
         });
-
-        if (!response.ok) {
-          const errBody = await response.json().catch(() => null);
-          console.error(`[PushNotification] Bulk Expo API Error: ${response.status} - ${JSON.stringify(errBody)}`);
-        }
       }
-
-      console.log('[PushNotification] Bulk push notifications processing complete.');
     } catch (error) {
-      console.error('[PushNotification] Error in bulk push notification service:', error);
+      console.error('[PushNotification] Error in bulk FCM service:', error);
     }
   }
 }
