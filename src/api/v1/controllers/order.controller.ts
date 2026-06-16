@@ -629,8 +629,13 @@ const cancelOrderImpl = async (
     };
     if (opts.userIdFilter) {
       // Customers can only cancel up to processing. Shipped must be handled by admin or via return.
+      // Also prevent cancellation if any shipments exist (order is dispatched)
       query.orderStatus = { $in: ['pending_payment', 'processing'] };
       query.userId = req.user!._id;
+      query.$or = [
+        { shipments: { $exists: false } },
+        { shipments: { $size: 0 } }
+      ];
     }
 
     const order = await Order.findOneAndUpdate(
