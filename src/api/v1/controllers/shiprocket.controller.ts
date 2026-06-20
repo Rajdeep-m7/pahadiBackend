@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { shiprocketService } from '@/api/v1/services/shiprocket.service';
 import { httpError } from '@/api/v1/utils/httpError';
 import httpResponse from '@/api/v1/utils/httpResponse';
+import env from '@/config/env';
 
 // ==========================================
 // CHECK COURIER SERVICEABILITY
@@ -28,8 +29,15 @@ export const checkCourierServiceability = async (req: Request, res: Response, ne
 // ==========================================
 export const handleWebhook = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // 1. Basic Security: Check for custom token if configured
+    const token = req.headers['x-api-key'];
+    if (env.SHIPROCKET_WEBHOOK_TOKEN && token !== env.SHIPROCKET_WEBHOOK_TOKEN) {
+      console.warn('[Shiprocket Webhook] Unauthorized request blocked.');
+      return res.status(200).json({ success: false, message: 'Unauthorized' });
+    }
+
     const payload = req.body;
-    const { awb, current_status, status, shipment_id } = payload;
+    const { awb, current_status, status } = payload;
 
     if (!awb) {
       return res.status(200).json({ message: 'No AWB found in payload' });
@@ -43,11 +51,13 @@ export const handleWebhook = async (req: Request, res: Response, next: NextFunct
     if (order) {
       const shipmentIndex = order.shipments.findIndex(s => s.trackingNumber === awb);
       if (shipmentIndex !== -1) {
-        order.shipments[shipmentIndex].deliveryStatus = current_status || status;
+        // Shiprocket uses 'current_status' for the human-readable status
+        const effectiveStatus = current_status || status;
+        order.shipments[shipmentIndex].deliveryStatus = effectiveStatus;
         order.shipments[shipmentIndex].trackingData = payload;
         
         // Update order status if delivered
-        if (status?.toLowerCase() === 'delivered') {
+        if (effectiveStatus?.toLowerCase() === 'delivered') {
           order.orderStatus = 'delivered';
           order.statusHistory.push({
             status: 'delivered',
